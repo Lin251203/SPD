@@ -264,7 +264,7 @@ class YOLOSHOWBASE:
             # 如果是图片 正常显示
             else:
                 self.showImg(self.inputPath, self.ui.main_leftbox, 'path')
-            self.showStatus('Loaded File：{}'.format(os.path.basename(self.inputPath)))
+            self.showStatus('已加载文件：{} (Loaded File)'.format(os.path.basename(self.inputPath)))
             config['file_path'] = os.path.dirname(self.inputPath)
             config_json = json.dumps(config, ensure_ascii=False, indent=2)
             with open(config_file, 'w', encoding='utf-8') as f:
@@ -293,13 +293,13 @@ class YOLOSHOWBASE:
                 # pos = QPoint(x, y)
                 # popMenu.exec(pos, aniType=MenuAnimationType.DROP_DOWN)
             else:
-                self.showStatus('No camera found !!!')
+                self.showStatus('未找到摄像头！(No camera found)')
         except Exception as e:
             self.showStatus('%s' % e)
 
     # 调用网络摄像头
     def actionWebcam(self, cam):
-        self.showStatus(f'Loading camera：Camera_{cam}')
+        self.showStatus(f'加载摄像头：Camera_{cam} (Loading camera)')
         self.thread = WebcamThread(cam)
         self.thread.changePixmap.connect(lambda x: self.showImg(x, self.ui.main_leftbox, 'img'))
         self.thread.start()
@@ -323,7 +323,7 @@ class YOLOSHOWBASE:
                           if jpgname in filename]
             # self.yolov5_thread.source = Foldername
             self.inputPath = Foldername
-            self.showStatus('Loaded Folder：{}'.format(os.path.basename(FolderPath)))
+            self.showStatus('已加载文件夹：{} (Loaded Folder)'.format(os.path.basename(FolderPath)))
             config['folder_path'] = FolderPath
             config_json = json.dumps(config, ensure_ascii=False, indent=2)
             with open(config_file, 'w', encoding='utf-8') as f:
@@ -340,18 +340,18 @@ class YOLOSHOWBASE:
             parsed_url = urlparse(self.rtspUrl)
             if parsed_url.scheme == 'rtsp':
                 if not self.checkRtspUrl(self.rtspUrl):
-                    self.showStatus('Rtsp stream is not available')
+                    self.showStatus('RTSP流不可用 (Rtsp stream is not available)')
                     return False
-                self.showStatus(f'Loading Rtsp：{self.rtspUrl}')
+                self.showStatus(f'正在加载RTSP流：{self.rtspUrl} (Loading Rtsp)')
                 self.rtspThread = WebcamThread(self.rtspUrl)
                 self.rtspThread.changePixmap.connect(lambda x: self.showImg(x, self.ui.main_leftbox, 'img'))
                 self.rtspThread.start()
                 self.inputPath = self.rtspUrl
             elif parsed_url.scheme in ['http', 'https']:
                 if not self.checkHttpUrl(self.rtspUrl):
-                    self.showStatus('Http stream is not available')
+                    self.showStatus('HTTP流不可用 (Http stream is not available)')
                     return False
-                self.showStatus(f'Loading Http：{self.rtspUrl}')
+                self.showStatus(f'正在加载HTTP流：{self.rtspUrl} (Loading Http)')
                 self.rtspThread = WebcamThread(self.rtspUrl)
                 self.rtspThread.changePixmap.connect(lambda x: self.showImg(x, self.ui.main_leftbox, 'img'))
                 self.rtspThread.start()
@@ -454,13 +454,13 @@ class YOLOSHOWBASE:
             fileptPath = os.path.join(self.pt_Path, os.path.basename(file))
             if not os.path.exists(fileptPath):
                 shutil.copy(file, self.pt_Path)
-                self.showStatus('Loaded Model：{}'.format(os.path.basename(file)))
+                self.showStatus('已加载模型：{} (Loaded Model)'.format(os.path.basename(file)))
                 config['model_path'] = os.path.dirname(file)
                 config_json = json.dumps(config, ensure_ascii=False, indent=2)
                 with open(config_file, 'w', encoding='utf-8') as f:
                     f.write(config_json)
             else:
-                self.showStatus('Model already exists')
+                self.showStatus('模型已存在 (Model already exists)')
 
     # 查看当前模型
     def checkCurrentModel(self, mode=None):
@@ -548,7 +548,7 @@ class YOLOSHOWBASE:
     # 在MessageBar显示消息
     def showStatus(self, msg):
         self.ui.message_bar.setText(msg)
-        if msg == 'Finish Detection':
+        if msg == 'Finish Detection' or msg == '检测完成 (Finish Detection)':
             self.quitRunningModel()
             self.ui.run_button.setChecked(False)
             self.ui.progress_bar.setValue(0)
@@ -566,7 +566,7 @@ class YOLOSHOWBASE:
 
     # 导出结果状态判断
     def saveStatus(self):
-        self.showStatus('NOTE: Run image results will be saved.')
+        self.showStatus('注意：检测结果将被保存 (NOTE: Run image results will be saved)')
         for yolo_thread in self.yolo_threads.threads_pool.values():
             yolo_thread.save_res = True
 
@@ -577,25 +577,25 @@ class YOLOSHOWBASE:
             try:
                 output_dir = os.path.dirname(yolo_thread.res_path)
                 if not os.path.exists(output_dir):
-                    self.showStatus('Please wait for the result to be generated')
+                    self.showStatus('请等待结果生成 (Please wait for the result to be generated)')
                     return
                 for filename in os.listdir(output_dir):
                     source_path = os.path.join(output_dir, filename)
                     destination_path = os.path.join(outdir, filename)
                     if os.path.isfile(source_path):
                         shutil.copy(source_path, destination_path)
-                self.showStatus('Saved Successfully in {}'.format(outdir))
+                self.showStatus('保存成功，位置：{} (Saved Successfully)'.format(outdir))
             except Exception as err:
-                self.showStatus(f"Error occurred while saving the result: {err}")
+                self.showStatus(f"保存结果时出错：{err} (Error occurred while saving the result)")
         else:
             try:
                 if not os.path.exists(yolo_thread.res_path):
-                    self.showStatus('Please wait for the result to be generated')
+                    self.showStatus('请等待结果生成 (Please wait for the result to be generated)')
                     return
                 shutil.copy(yolo_thread.res_path, outdir)
-                self.showStatus('Saved Successfully in {}'.format(outdir))
+                self.showStatus('保存成功，位置：{} (Saved Successfully)'.format(outdir))
             except Exception as err:
-                self.showStatus(f"Error occurred while saving the result: {err}")
+                self.showStatus(f"保存结果时出错：{err} (Error occurred while saving the result)")
 
     def loadAndSetParams(self, config_file, params):
         if not os.path.exists(config_file):
@@ -657,28 +657,28 @@ class YOLOSHOWBASE:
             self.ui.iou_slider.setValue(int(x * 100))  # The box value changes, changing the slider
         elif flag == 'iou_slider':
             self.ui.iou_spinbox.setValue(x / 100)  # The slider value changes, changing the box
-            self.showStatus('IOU Threshold: %s' % str(x / 100))
+            self.showStatus('IOU 交并比阈值: %s (IOU Threshold)' % str(x / 100))
             for yolo_thread in self.yolo_threads.threads_pool.values():
                 yolo_thread.iou_thres = x / 100
         elif flag == 'conf_spinbox':
             self.ui.conf_slider.setValue(int(x * 100))
         elif flag == 'conf_slider':
             self.ui.conf_spinbox.setValue(x / 100)
-            self.showStatus('Conf Threshold: %s' % str(x / 100))
+            self.showStatus('置信度阈值: %s (Conf Threshold)' % str(x / 100))
             for yolo_thread in self.yolo_threads.threads_pool.values():
                 yolo_thread.conf_thres = x / 100
         elif flag == 'speed_spinbox':
             self.ui.speed_slider.setValue(x)
         elif flag == 'speed_slider':
             self.ui.speed_spinbox.setValue(x)
-            self.showStatus('Delay: %s ms' % str(x))
+            self.showStatus('延迟: %s ms (Delay)' % str(x))
             for yolo_thread in self.yolo_threads.threads_pool.values():
                 yolo_thread.speed_thres = x  # ms
         elif flag == 'line_spinbox':
             self.ui.line_slider.setValue(x)
         elif flag == 'line_slider':
             self.ui.line_spinbox.setValue(x)
-            self.showStatus('Line Width: %s' % str(x))
+            self.showStatus('线宽: %s (Line Width)' % str(x))
             for yolo_thread in self.yolo_threads.threads_pool.values():
                 yolo_thread.line_thickness = x
 
@@ -791,29 +791,51 @@ class YOLOSHOWBASE:
     def showResultStatics(self):
         self.resutl_statistic = dict()
         # 读取 JSON 文件
-        with open(self.current_workpath + r'\config\result.json', 'r', encoding='utf-8') as file:
-            self.result_statistic = json.load(file)
-        if self.result_statistic:
-            # 创建新字典，使用中文键
-            result_str = ""
-            for index, (key, value) in enumerate(self.result_statistic.items()):
-                result_str += f"{key}:{value}x \t"
-                if (index + 1) % 4 == 0:
-                    result_str += "\n"
-
+        result_json_path = self.current_workpath + r'\config\result.json'
+        result_png_path = self.current_workpath + r'\config\result.png'
+        
+        # 检查文件是否存在
+        if not os.path.exists(result_json_path):
             view = AcrylicFlyoutView(
-                title='Detected Target Category Distribution (Percentage)',
-                content=result_str,
-                image=self.current_workpath + r'\config\result.png',
+                title='结果统计 (Result Statistics)',
+                content="未检测到已完成的目标检测结果，请先执行检测任务！\n(No completed target detection results detected, please execute the detection task first!)",
                 isClosable=True
             )
-
         else:
-            view = AcrylicFlyoutView(
-                title='Result Statistics',
-                content="No completed target detection results detected, please execute the detection task first!",
-                isClosable=True
-            )
+            with open(result_json_path, 'r', encoding='utf-8') as file:
+                self.result_statistic = json.load(file)
+            
+            # 检查结果是否为空或result.png是否存在
+            if self.result_statistic and os.path.exists(result_png_path):
+                # 创建新字典，使用中文键
+                result_str = ""
+                for index, (key, value) in enumerate(self.result_statistic.items()):
+                    result_str += f"{key}:{value}x \t"
+                    if (index + 1) % 4 == 0:
+                        result_str += "\n"
+
+                view = AcrylicFlyoutView(
+                    title='检测目标类别分布（百分比）(Detected Target Category Distribution)',
+                    content=result_str,
+                    image=result_png_path,
+                    isClosable=True
+                )
+            else:
+                # 区分两种情况：未检测 vs 检测完成但没有目标
+                view = AcrylicFlyoutView(
+                    title='结果统计 (Result Statistics)',
+                    content="检测已完成，但未检测到任何目标（Classes=0, Targets=0）\n"
+                           "可能原因：\n"
+                           "• 图片/视频中没有人物\n"
+                           "• 置信度阈值设置过高，尝试降低 Confidence 参数\n"
+                           "• 模型不适合当前场景，尝试更换模型\n\n"
+                           "(Detection completed, but no targets detected)\n"
+                           "Possible reasons:\n"
+                           "• No person in the image/video\n"
+                           "• Confidence threshold too high, try lowering it\n"
+                           "• Model not suitable for current scene",
+                    isClosable=True
+                )
 
         # 修改字体大小
         view.titleLabel.setStyleSheet("""font-size: 30px; 

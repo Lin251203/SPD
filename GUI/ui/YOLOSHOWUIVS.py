@@ -2364,7 +2364,7 @@ class Ui_MainWindow(object):
         self.closeButton.setText("")
         self.minimizeButton.setText("")
         self.maximizeButton.setText("")
-        self.title.setText(QCoreApplication.translate("MainWindow", u"Deep learning sitting posture detection based on multimodal datasets", None))
+        self.title.setText(QCoreApplication.translate("MainWindow", u"基于多模态数据集的深度学习坐姿检测 (Deep learning sitting posture detection based on multimodal datasets)", None))
         self.src_menu.setText(QCoreApplication.translate("MainWindow", u" Menu     ", None))
         self.src_img.setText(QCoreApplication.translate("MainWindow", u"Media    ", None))
         self.src_folder.setText(QCoreApplication.translate("MainWindow", u" Folder    ", None))

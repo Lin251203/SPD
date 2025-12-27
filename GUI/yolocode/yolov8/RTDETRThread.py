@@ -157,6 +157,7 @@ class RTDETRThread(QThread):
             79: "toothbrush"
         }  # coco.names 配对
         self.results_picture = dict()  # 结果图片
+        self.all_labels_dict = {}  # 累积所有帧的检测结果
         self.results_table = list()  # 结果表格
         self.callbacks = defaultdict(list, callbacks.default_callbacks)  # add callbacks
         callbacks.add_integration_callbacks(self)
@@ -164,7 +165,7 @@ class RTDETRThread(QThread):
     def run(self):
 
         if not self.model:
-            self.send_msg.emit("Loading model: {}".format(os.path.basename(self.new_model_name)))
+            self.send_msg.emit("正在加载模型：{} (Loading model)".format(os.path.basename(self.new_model_name)))
             self.setup_model(self.new_model_name)
             self.used_model_name = self.new_model_name
             self.model.names = {key: self.names_map[int(value)] for key, value in self.model.names.items()}
@@ -203,12 +204,13 @@ class RTDETRThread(QThread):
         start_time = time.time()  # used to calculate the frame rate
         while True:
             if self.stop_dtc:
-                self.send_msg.emit('Stop Detection')
+                self.send_msg.emit('停止检测 (Stop Detection)')
                 # --- 发送图片和表格结果 --- #
                 self.send_result_picture.emit(self.results_picture)  # 发送图片结果
                 for key, value in self.results_picture.items():
                     self.results_table.append([key, str(value)])
                 self.results_picture = dict()
+                self.all_labels_dict = {}  # 清空累积结果
                 self.send_result_table.emit(self.results_table)  # 发送表格结果
                 self.results_table = list()
                 # --- 发送图片和表格结果 --- #
@@ -231,21 +233,21 @@ class RTDETRThread(QThread):
                 break
                 #  判断是否更换模型
             if self.current_model_name != self.new_model_name:
-                self.send_msg.emit('Loading Model: {}'.format(os.path.basename(self.new_model_name)))
+                self.send_msg.emit('正在加载模型：{} (Loading Model)'.format(os.path.basename(self.new_model_name)))
                 self.setup_model(self.new_model_name)
                 self.current_model_name = self.new_model_name
                 self.model.names = {key: self.names_map[int(value)] for key, value in self.model.names.items()}
             if self.is_continue:
                 if self.is_file:
-                    self.send_msg.emit("Detecting File: {}".format(os.path.basename(self.source)))
+                    self.send_msg.emit("正在检测文件：{} (Detecting File)".format(os.path.basename(self.source)))
                 elif self.webcam and not self.is_url:
-                    self.send_msg.emit("Detecting Webcam: Camera_{}".format(self.source))
+                    self.send_msg.emit("正在检测摄像头：Camera_{} (Detecting Webcam)".format(self.source))
                 elif self.is_folder:
-                    self.send_msg.emit("Detecting Folder: {}".format(os.path.dirname(self.source[0])))
+                    self.send_msg.emit("正在检测文件夹：{} (Detecting Folder)".format(os.path.dirname(self.source[0])))
                 elif self.is_url:
-                    self.send_msg.emit("Detecting URL: {}".format(self.source))
+                    self.send_msg.emit("正在检测URL：{} (Detecting URL)".format(self.source))
                 else:
-                    self.send_msg.emit("Detecting: {}".format(self.source))
+                    self.send_msg.emit("正在检测：{} (Detecting)".format(self.source))
                 self.batch = next(datasets)
                 path, im0s, s = self.batch
                 self.vid_cap = self.dataset.cap if self.dataset.mode == "video" else None
@@ -312,11 +314,22 @@ class RTDETRThread(QThread):
                             else:  # 第一次出现的类别
                                 self.labels_dict[label_name] = int(nums)
 
+                    # 累积所有帧的检测结果
+                    for key, value in self.labels_dict.items():
+                        if key in self.all_labels_dict:
+                            self.all_labels_dict[key] += value
+                        else:
+                            self.all_labels_dict[key] = value
+                    
+                    # 计算累积的类别数和目标数
+                    accumulated_class_nums = len(self.all_labels_dict)  # 累积的类别种类数
+                    accumulated_target_nums = sum(self.all_labels_dict.values())  # 累积的目标总数
+                    
                     # Send test results
                     self.send_output.emit(self.plotted_img)  # after detection
-                    self.send_class_num.emit(class_nums)
-                    self.send_target_num.emit(target_nums)
-                    self.results_picture = self.labels_dict
+                    self.send_class_num.emit(accumulated_class_nums)  # 发送累积的类别数
+                    self.send_target_num.emit(accumulated_target_nums)  # 发送累积的目标数
+                    self.results_picture = self.all_labels_dict
 
                     if self.save_res:
                         save_path = str(self.save_path / p.name)  # im.jpg
@@ -328,12 +341,13 @@ class RTDETRThread(QThread):
 
                 if percent == self.progress_value and not self.webcam:
                     self.send_progress.emit(0)
-                    self.send_msg.emit('Finish Detection')
+                    self.send_msg.emit('检测完成 (Finish Detection)')
                     # --- 发送图片和表格结果 --- #
                     self.send_result_picture.emit(self.results_picture)  # 发送图片结果
                     for key, value in self.results_picture.items():
                         self.results_table.append([key, str(value)])
                     self.results_picture = dict()
+                    self.all_labels_dict = {}  # 清空累积结果
                     self.send_result_table.emit(self.results_table)  # 发送表格结果
                     self.results_table = list()
                     # --- 发送图片和表格结果 --- #

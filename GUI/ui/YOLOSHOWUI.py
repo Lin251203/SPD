@@ -1911,46 +1911,191 @@ class Ui_MainWindow(object):
         self.closeButton.setText("")
         self.minimizeButton.setText("")
         self.maximizeButton.setText("")
-        self.title.setText(QCoreApplication.translate("MainWindow", u"Deep learning sitting posture detection based on multimodal datasets", None))
+        self.title.setText(QCoreApplication.translate("MainWindow", u"基于多模态数据集的深度学习坐姿检测 (Deep learning sitting posture detection based on multimodal datasets)", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Rike Fifth", None))
-        self.src_img.setText(QCoreApplication.translate("MainWindow", u"Media", None))
-        self.src_webcam.setText(QCoreApplication.translate("MainWindow", u" Webcam", None))
-        self.src_folder.setText(QCoreApplication.translate("MainWindow", u" Folder  ", None))
+        self.src_img.setText(QCoreApplication.translate("MainWindow", u"Media 媒体", None))
+        self.src_webcam.setText(QCoreApplication.translate("MainWindow", u" Webcam 摄像头", None))
+        self.src_folder.setText(QCoreApplication.translate("MainWindow", u" Folder 文件夹", None))
 #if QT_CONFIG(shortcut)
         self.src_folder.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+S", None))
 #endif // QT_CONFIG(shortcut)
-        self.src_camera.setText(QCoreApplication.translate("MainWindow", u"IPcam  ", None))
-        self.src_result.setText(QCoreApplication.translate("MainWindow", u"    Result Pic  ", None))
-        self.src_table.setText(QCoreApplication.translate("MainWindow", u"    Result Tab  ", None))
-        self.src_vsmode.setText(QCoreApplication.translate("MainWindow", u"VS Mode", None))
+        self.src_camera.setText(QCoreApplication.translate("MainWindow", u"IPcam 网络摄像头", None))
+        self.src_result.setText(QCoreApplication.translate("MainWindow", u"    Result Pic 结果图片", None))
+        self.src_table.setText(QCoreApplication.translate("MainWindow", u"    Result Tab 结果表格", None))
+        self.src_vsmode.setText(QCoreApplication.translate("MainWindow", u"VS Mode 对比模式", None))
 #if QT_CONFIG(shortcut)
         self.src_vsmode.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+S", None))
 #endif // QT_CONFIG(shortcut)
         self.main_leftbox.setText("")
         self.main_rightbox.setText("")
         self.classesLabel.setText("")
-        self.label_5.setText(QCoreApplication.translate("MainWindow", u"Classes", None))
+        self.label_5.setText(QCoreApplication.translate("MainWindow", u"Classes 类别", None))
         self.Class_num.setText("")
         self.targetLabel.setText("")
-        self.label_6.setText(QCoreApplication.translate("MainWindow", u"Targets", None))
+        self.label_6.setText(QCoreApplication.translate("MainWindow", u"Targets 目标", None))
         self.Target_num.setText("")
         self.fpsLabel.setText("")
-        self.label_7.setText(QCoreApplication.translate("MainWindow", u"Fps", None))
+        self.label_7.setText(QCoreApplication.translate("MainWindow", u"Fps 帧率", None))
         self.fps_label.setText("")
         self.modelLabel.setText("")
-        self.label_8.setText(QCoreApplication.translate("MainWindow", u"Model", None))
+        self.label_8.setText(QCoreApplication.translate("MainWindow", u"Model 模型", None))
         self.Model_label.setText("")
         self.run_button.setText("")
         self.stop_button.setText("")
-        self.message_bar.setText(QCoreApplication.translate("MainWindow", u"Message Bar ... ", None))
-        self.label_2.setText(QCoreApplication.translate("MainWindow", u"Settings", None))
-        self.ToggleBotton_6.setText(QCoreApplication.translate("MainWindow", u"Model", None))
+        self.message_bar.setText(QCoreApplication.translate("MainWindow", u"Message Bar 消息栏 ... ", None))
+        self.label_2.setText(QCoreApplication.translate("MainWindow", u"Settings 设置", None))
+        self.ToggleBotton_6.setText(QCoreApplication.translate("MainWindow", u"Model 模型", None))
         self.model_box.setProperty(u"placeholderText", "")
-        self.mp_button.setText(QCoreApplication.translate("MainWindow", u"Mediapipe", None))
-        self.ToggleBotton_2.setText(QCoreApplication.translate("MainWindow", u"IOU", None))
-        self.ToggleBotton_3.setText(QCoreApplication.translate("MainWindow", u"Confidence", None))
-        self.ToggleBotton_4.setText(QCoreApplication.translate("MainWindow", u"Delay(ms)", None))
-        self.ToggleBotton_5.setText(QCoreApplication.translate("MainWindow", u"Line Width", None))
-        self.save_button.setText(QCoreApplication.translate("MainWindow", u"Save Result", None))
+        self.mp_button.setText(QCoreApplication.translate("MainWindow", u"Mediapipe 骨骼提取", None))
+        self.ToggleBotton_2.setText(QCoreApplication.translate("MainWindow", u"IOU 交并比", None))
+        self.ToggleBotton_3.setText(QCoreApplication.translate("MainWindow", u"Confidence 置信度", None))
+        self.ToggleBotton_4.setText(QCoreApplication.translate("MainWindow", u"Delay(ms) 延迟", None))
+        self.ToggleBotton_5.setText(QCoreApplication.translate("MainWindow", u"Line Width 线宽", None))
+        self.save_button.setText(QCoreApplication.translate("MainWindow", u"Save Result 保存结果", None))
+        
+        # 添加详细的中文工具提示说明
+        # Model 模型选择
+        self.model_box.setToolTip(QCoreApplication.translate("MainWindow", 
+            u"【模型选择】\n"
+            u"• yolov11-eq.pt - 坐姿检测专用模型（推荐）⭐\n"
+            u"  训练了6种坐姿：正确坐姿、身体左倾、身体右倾、左手托腮、右手托腮、趴桌\n"
+            u"• yolo11n.pt - 通用目标检测模型\n"
+            u"• yolo11n-pose.pt - 人体姿态检测模型\n"
+            u"• yolo11n-seg.pt - 图像分割模型\n\n"
+            u"💡 建议：使用 yolov11-eq.pt 获得最佳坐姿检测效果", None))
+        
+        # Mediapipe 骨骼提取
+        self.mp_button.setToolTip(QCoreApplication.translate("MainWindow",
+            u"【Mediapipe 骨骼提取】\n"
+            u"作用：提取人体骨骼关键点，辅助坐姿检测\n"
+            u"• 开启：提高检测精度，更准确识别坐姿（推荐）⭐\n"
+            u"• 关闭：仅使用YOLO检测，速度更快但精度略低\n\n"
+            u"首次使用：需要下载模型文件（约10分钟，仅一次）\n"
+            u"后续使用：直接加载本地缓存，启动很快\n\n"
+            u"💡 建议：保持开启状态以获得最佳检测效果", None))
+        
+        # IOU 交并比
+        self.iou_spinbox.setToolTip(QCoreApplication.translate("MainWindow",
+            u"【IOU 交并比阈值】\n"
+            u"作用：控制重叠检测框的合并程度\n"
+            u"• 数值范围：0.01 - 1.00\n"
+            u"• 默认值：0.45（推荐 0.45-0.50）\n\n"
+            u"调整效果：\n"
+            u"• 调高（0.50-0.70）：保留更多重叠框，可能出现重复检测\n"
+            u"• 调低（0.30-0.45）：合并更多重叠框，减少重复检测\n\n"
+            u"💡 建议：保持默认值 0.45，一般无需调整", None))
+        
+        self.iou_slider.setToolTip(QCoreApplication.translate("MainWindow",
+            u"【IOU 交并比阈值】\n"
+            u"拖动滑块快速调整 IOU 值\n"
+            u"推荐范围：0.45-0.50", None))
+        
+        # Confidence 置信度
+        self.conf_spinbox.setToolTip(QCoreApplication.translate("MainWindow",
+            u"【Confidence 置信度阈值】\n"
+            u"作用：控制检测的灵敏度，过滤低置信度的检测结果\n"
+            u"• 数值范围：0.01 - 1.00\n"
+            u"• 默认值：0.25（推荐 0.25-0.35）\n\n"
+            u"调整效果：\n"
+            u"• 调高（0.35-0.50）：只显示高置信度结果，减少误检但可能漏检\n"
+            u"  适用场景：误检太多、需要更准确的结果\n"
+            u"• 调低（0.15-0.25）：显示更多检测结果，提高检出率但可能误检\n"
+            u"  适用场景：检测不到目标、需要更灵敏的检测\n\n"
+            u"💡 建议：\n"
+            u"  - 检测不到 → 降低到 0.20-0.25\n"
+            u"  - 误检太多 → 提高到 0.35-0.40\n"
+            u"  - 正常使用 → 保持 0.25-0.30", None))
+        
+        self.conf_slider.setToolTip(QCoreApplication.translate("MainWindow",
+            u"【Confidence 置信度阈值】\n"
+            u"拖动滑块快速调整置信度\n"
+            u"推荐范围：0.25-0.35", None))
+        
+        # Delay 延迟
+        self.speed_spinbox.setToolTip(QCoreApplication.translate("MainWindow",
+            u"【Delay 帧间延迟】\n"
+            u"作用：控制视频/摄像头处理的帧间延迟时间\n"
+            u"• 数值范围：0 - 50 毫秒\n"
+            u"• 默认值：10ms（推荐 5-10ms）\n\n"
+            u"调整效果：\n"
+            u"• 调高（15-30ms）：降低处理速度，减少CPU/GPU占用\n"
+            u"  适用场景：电脑卡顿、风扇噪音大、需要节省资源\n"
+            u"• 调低（1-5ms）：提高处理速度，更流畅但占用更多资源\n"
+            u"  适用场景：性能充足、需要实时性更高的检测\n"
+            u"• 设为0：最快速度，但可能导致系统卡顿\n\n"
+            u"💡 建议：\n"
+            u"  - 电脑卡顿 → 增加到 15-20ms\n"
+            u"  - 性能充足 → 保持 5-10ms\n"
+            u"  - 处理视频文件 → 可设为 1-5ms", None))
+        
+        self.speed_slider.setToolTip(QCoreApplication.translate("MainWindow",
+            u"【Delay 帧间延迟】\n"
+            u"拖动滑块快速调整延迟时间\n"
+            u"推荐范围：5-10ms", None))
+        
+        # Line Width 线宽
+        self.line_spinbox.setToolTip(QCoreApplication.translate("MainWindow",
+            u"【Line Width 检测框线宽】\n"
+            u"作用：调整检测框边框的粗细程度（仅影响显示效果）\n"
+            u"• 数值范围：0 - 5 像素\n"
+            u"• 默认值：3（推荐 2-3）\n\n"
+            u"调整效果：\n"
+            u"• 调高（3-5）：边框更粗，更容易看清检测框\n"
+            u"• 调低（1-2）：边框更细，画面更简洁\n"
+            u"• 设为0：不显示边框（不推荐）\n\n"
+            u"💡 说明：此参数不影响检测性能，仅改变视觉效果", None))
+        
+        self.line_slider.setToolTip(QCoreApplication.translate("MainWindow",
+            u"【Line Width 检测框线宽】\n"
+            u"拖动滑块快速调整线宽\n"
+            u"推荐范围：2-3", None))
+        
+        # Save Result 保存结果
+        self.save_button.setToolTip(QCoreApplication.translate("MainWindow",
+            u"【Save Result 保存检测结果】\n"
+            u"作用：将检测结果保存到本地文件\n\n"
+            u"保存内容：\n"
+            u"• 标注后的图片/视频（带检测框和标签）\n"
+            u"• 检测统计数据（类别、数量、置信度等）\n\n"
+            u"保存位置：\n"
+            u"• 图片结果：可通过 'Result Pic 结果图片' 查看\n"
+            u"• 统计数据：可通过 'Result Tab 结果表格' 查看\n\n"
+            u"💡 提示：勾选后会自动保存所有检测结果", None))
+        
+        # 左侧菜单项工具提示
+        self.src_img.setToolTip(QCoreApplication.translate("MainWindow",
+            u"【Media 媒体】\n"
+            u"选择图片或视频文件进行检测\n"
+            u"支持格式：jpg, png, mp4, avi 等", None))
+        
+        self.src_webcam.setToolTip(QCoreApplication.translate("MainWindow",
+            u"【Webcam 摄像头】⭐\n"
+            u"使用本地摄像头进行实时坐姿检测\n"
+            u"推荐用于日常坐姿监测", None))
+        
+        self.src_folder.setToolTip(QCoreApplication.translate("MainWindow",
+            u"【Folder 文件夹】\n"
+            u"批量处理文件夹中的所有图片/视频\n"
+            u"适合大量文件的批处理", None))
+        
+        self.src_camera.setToolTip(QCoreApplication.translate("MainWindow",
+            u"【IPcam 网络摄像头】\n"
+            u"连接网络摄像头或RTSP视频流\n"
+            u"需要输入摄像头的IP地址或RTSP地址", None))
+        
+        self.src_result.setToolTip(QCoreApplication.translate("MainWindow",
+            u"【Result Pic 结果图片】\n"
+            u"查看已保存的检测结果图片\n"
+            u"显示带标注的检测结果", None))
+        
+        self.src_table.setToolTip(QCoreApplication.translate("MainWindow",
+            u"【Result Tab 结果表格】\n"
+            u"查看检测统计数据表格\n"
+            u"包含类别、数量、置信度等信息", None))
+        
+        self.src_vsmode.setToolTip(QCoreApplication.translate("MainWindow",
+            u"【VS Mode 对比模式】\n"
+            u"同时使用两个模型进行对比检测\n"
+            u"可以比较不同模型的检测效果", None))
     # retranslateUi
 

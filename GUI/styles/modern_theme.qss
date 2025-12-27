@@ -1,0 +1,516 @@
+/* ========================================
+   现代化主题样式表 - 坐姿检测系统
+   Modern Theme Stylesheet - SPD System
+   ======================================== */
+
+/* ========================================
+   全局样式 Global Styles
+   ======================================== */
+
+* {
+    font-family: "Microsoft YaHei UI", "Segoe UI", "PingFang SC", sans-serif;
+    outline: none;
+}
+
+QWidget {
+    color: #2c3e50;
+    background-color: transparent;
+}
+
+/* ========================================
+   按钮样式 Button Styles
+   ======================================== */
+
+QPushButton {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #667eea, stop:1 #764ba2);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 10pt;
+    font-weight: 600;
+    min-height: 35px;
+}
+
+QPushButton:hover {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #764ba2, stop:1 #667eea);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+QPushButton:pressed {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #5a67d8, stop:1 #6b46c1);
+    padding-top: 12px;
+    padding-bottom: 8px;
+}
+
+QPushButton:disabled {
+    background-color: #bdc3c7;
+    color: #7f8c8d;
+}
+
+/* 主要操作按钮 Primary Buttons */
+QPushButton#run_button,
+QPushButton#stop_button {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #f093fb, stop:1 #f5576c);
+    min-width: 100px;
+    font-size: 11pt;
+}
+
+QPushButton#run_button:hover,
+QPushButton#stop_button:hover {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #f5576c, stop:1 #f093fb);
+}
+
+/* 保存按钮 Save Button */
+QPushButton#save_button {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #4facfe, stop:1 #00f2fe);
+}
+
+QPushButton#save_button:hover {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #00f2fe, stop:1 #4facfe);
+}
+
+/* 侧边栏按钮 Sidebar Buttons */
+QPushButton#src_img,
+QPushButton#src_webcam,
+QPushButton#src_folder,
+QPushButton#src_camera,
+QPushButton#src_result,
+QPushButton#src_table,
+QPushButton#src_vsmode {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: left;
+    color: white;
+    font-size: 10pt;
+}
+
+QPushButton#src_img:hover,
+QPushButton#src_webcam:hover,
+QPushButton#src_folder:hover,
+QPushButton#src_camera:hover,
+QPushButton#src_result:hover,
+QPushButton#src_table:hover,
+QPushButton#src_vsmode:hover {
+    background-color: rgba(114, 129, 214, 0.3);
+    border: 1px solid rgba(114, 129, 214, 0.5);
+}
+
+QPushButton#src_img:pressed,
+QPushButton#src_webcam:pressed,
+QPushButton#src_folder:pressed,
+QPushButton#src_camera:pressed,
+QPushButton#src_result:pressed,
+QPushButton#src_table:pressed,
+QPushButton#src_vsmode:pressed {
+    background-color: rgba(114, 129, 214, 0.5);
+}
+
+/* ========================================
+   输入框样式 Input Styles
+   ======================================== */
+
+/* SpinBox 数字输入框 */
+QDoubleSpinBox,
+QSpinBox {
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 2px solid rgba(114, 129, 214, 0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 10pt;
+    font-weight: 600;
+    color: #2c3e50;
+    min-height: 30px;
+}
+
+QDoubleSpinBox:hover,
+QSpinBox:hover {
+    background-color: rgba(114, 129, 214, 0.1);
+    border: 2px solid rgba(114, 129, 214, 0.5);
+}
+
+QDoubleSpinBox:focus,
+QSpinBox:focus {
+    background-color: white;
+    border: 2px solid #667eea;
+}
+
+QDoubleSpinBox::up-button,
+QSpinBox::up-button {
+    width: 20px;
+    height: 15px;
+    border-radius: 4px;
+    background-color: rgba(114, 129, 214, 0.2);
+    margin: 2px;
+}
+
+QDoubleSpinBox::up-button:hover,
+QSpinBox::up-button:hover {
+    background-color: rgba(114, 129, 214, 0.4);
+}
+
+QDoubleSpinBox::down-button,
+QSpinBox::down-button {
+    width: 20px;
+    height: 15px;
+    border-radius: 4px;
+    background-color: rgba(114, 129, 214, 0.2);
+    margin: 2px;
+}
+
+QDoubleSpinBox::down-button:hover,
+QSpinBox::down-button:hover {
+    background-color: rgba(114, 129, 214, 0.4);
+}
+
+/* ComboBox 下拉框 */
+QComboBox {
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 2px solid rgba(114, 129, 214, 0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 10pt;
+    font-weight: 600;
+    color: #2c3e50;
+    min-height: 30px;
+}
+
+QComboBox:hover {
+    background-color: rgba(114, 129, 214, 0.1);
+    border: 2px solid rgba(114, 129, 214, 0.5);
+}
+
+QComboBox:focus {
+    background-color: white;
+    border: 2px solid #667eea;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 30px;
+}
+
+QComboBox::down-arrow {
+    image: url(:/leftbox/images/newsize/box_down.png);
+    width: 12px;
+    height: 12px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: white;
+    border: 2px solid #667eea;
+    border-radius: 8px;
+    selection-background-color: rgba(114, 129, 214, 0.3);
+    padding: 5px;
+}
+
+/* ========================================
+   滑块样式 Slider Styles
+   ======================================== */
+
+QSlider::groove:horizontal {
+    border: none;
+    height: 8px;
+    background-color: rgba(114, 129, 214, 0.2);
+    border-radius: 4px;
+}
+
+QSlider::groove:horizontal:hover {
+    background-color: rgba(114, 129, 214, 0.3);
+}
+
+QSlider::handle:horizontal {
+    width: 18px;
+    height: 18px;
+    margin: -5px 0;
+    border-radius: 9px;
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #667eea, stop:1 #764ba2);
+    border: 2px solid white;
+}
+
+QSlider::handle:horizontal:hover {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #764ba2, stop:1 #667eea);
+    width: 20px;
+    height: 20px;
+    margin: -6px 0;
+}
+
+QSlider::sub-page:horizontal {
+    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                      stop:0 #667eea, stop:1 #764ba2);
+    border-radius: 4px;
+}
+
+/* ========================================
+   进度条样式 Progress Bar Styles
+   ======================================== */
+
+QProgressBar {
+    background-color: rgba(114, 129, 214, 0.1);
+    border: none;
+    border-radius: 8px;
+    text-align: center;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 10pt;
+    min-height: 25px;
+}
+
+QProgressBar::chunk {
+    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                      stop:0 #667eea, stop:1 #764ba2);
+    border-radius: 8px;
+}
+
+/* ========================================
+   标签样式 Label Styles
+   ======================================== */
+
+QLabel {
+    color: white;
+    font-size: 10pt;
+    background-color: transparent;
+}
+
+/* 状态栏标签 Status Bar Labels */
+QLabel#label_5,
+QLabel#label_6,
+QLabel#label_7,
+QLabel#label_8 {
+    color: white;
+    font-size: 10pt;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+QLabel#label_5:hover,
+QLabel#label_6:hover,
+QLabel#label_7:hover,
+QLabel#label_8:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* 状态栏数值标签 Status Bar Value Labels */
+QLabel#Class_num,
+QLabel#Target_num,
+QLabel#fps_label,
+QLabel#Model_label {
+    color: white;
+    font-size: 11pt;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+QLabel#Class_num:hover,
+QLabel#Target_num:hover,
+QLabel#fps_label:hover,
+QLabel#Model_label:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* 标题标签 Title Label */
+QLabel#title {
+    color: white;
+    font-size: 12pt;
+    font-weight: 700;
+}
+
+/* ========================================
+   框架样式 Frame Styles
+   ======================================== */
+
+/* 主显示区域 Main Display Area */
+QFrame#main_leftbox,
+QFrame#main_rightbox {
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(114, 129, 214, 0.3);
+    border-radius: 15px;
+}
+
+/* 状态栏框架 Status Bar Frames */
+QFrame#Class_QF,
+QFrame#Target_QF,
+QFrame#Fps_QF,
+QFrame#Model_QF {
+    background-color: rgba(114, 129, 214, 0.2);
+    border-radius: 12px;
+    padding: 8px;
+}
+
+/* 设置栏 Settings Bar */
+QFrame#settingBox {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-left: 2px solid rgba(114, 129, 214, 0.3);
+}
+
+/* 左侧栏 Left Sidebar */
+QFrame#leftBox {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-right: 2px solid rgba(114, 129, 214, 0.3);
+}
+
+/* ========================================
+   滚动条样式 ScrollBar Styles
+   ======================================== */
+
+QScrollBar:vertical {
+    background-color: rgba(114, 129, 214, 0.1);
+    width: 12px;
+    border-radius: 6px;
+    margin: 0px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: rgba(114, 129, 214, 0.5);
+    border-radius: 6px;
+    min-height: 30px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: rgba(114, 129, 214, 0.7);
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+QScrollBar:horizontal {
+    background-color: rgba(114, 129, 214, 0.1);
+    height: 12px;
+    border-radius: 6px;
+    margin: 0px;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: rgba(114, 129, 214, 0.5);
+    border-radius: 6px;
+    min-width: 30px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background-color: rgba(114, 129, 214, 0.7);
+}
+
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
+    width: 0px;
+}
+
+/* ========================================
+   工具提示样式 Tooltip Styles
+   ======================================== */
+
+QToolTip {
+    background-color: rgba(44, 62, 80, 0.95);
+    color: white;
+    border: 2px solid #667eea;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 9pt;
+    font-weight: 500;
+}
+
+/* ========================================
+   消息栏样式 Message Bar Styles
+   ======================================== */
+
+QLabel#message_bar {
+    background-color: rgba(114, 129, 214, 0.2);
+    color: white;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 10pt;
+    font-weight: 600;
+}
+
+/* ========================================
+   特殊控件样式 Special Widget Styles
+   ======================================== */
+
+/* Mediapipe 按钮 */
+QPushButton#mp_button {
+    background-color: rgba(76, 175, 80, 0.8);
+    border-radius: 10px;
+    min-width: 50px;
+    min-height: 50px;
+}
+
+QPushButton#mp_button:hover {
+    background-color: rgba(76, 175, 80, 1);
+}
+
+QPushButton#mp_button:checked {
+    background-color: rgba(46, 125, 50, 1);
+}
+
+/* 窗口控制按钮 Window Control Buttons */
+QPushButton#minimizeButton,
+QPushButton#maximizeButton,
+QPushButton#closeButton {
+    background-color: transparent;
+    border: none;
+    border-radius: 5px;
+    min-width: 30px;
+    min-height: 30px;
+}
+
+QPushButton#minimizeButton:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+QPushButton#maximizeButton:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+QPushButton#closeButton:hover {
+    background-color: rgba(231, 76, 60, 0.8);
+}
+
+/* ========================================
+   动画和过渡效果 Animations & Transitions
+   ======================================== */
+
+QPushButton,
+QDoubleSpinBox,
+QSpinBox,
+QComboBox,
+QSlider::handle:horizontal,
+QLabel {
+    /* 平滑过渡效果 */
+}
+
+/* ========================================
+   响应式设计 Responsive Design
+   ======================================== */
+
+/* 小屏幕适配 */
+@media (max-width: 1280px) {
+    QPushButton {
+        padding: 8px 15px;
+        font-size: 9pt;
+    }
+    
+    QLabel {
+        font-size: 9pt;
+    }
+}
+
+/* ========================================
+   深色模式支持 Dark Mode Support
+   ======================================== */
+
+/* 可以根据需要添加深色模式样式 */

@@ -93,7 +93,7 @@ class YOLOv8Thread(QThread):
     def run(self):
 
         if not self.model:
-            self.send_msg.emit("Loading model: {}".format(os.path.basename(self.new_model_name)))
+            self.send_msg.emit("正在加载模型：{} (Loading model)".format(os.path.basename(self.new_model_name)))
             self.setup_model(self.new_model_name)
             self.used_model_name = self.new_model_name
 
@@ -140,7 +140,7 @@ class YOLOv8Thread(QThread):
             if self.stop_dtc:
                 if self.is_folder and not is_folder_last:
                     break
-                self.send_msg.emit('Stop Detection')
+                self.send_msg.emit('停止检测 (Stop Detection)')
                 # --- 发送图片和表格结果 --- #
                 self.send_result_picture.emit(self.results_picture)  # 发送图片结果
                 for key, value in self.results_picture.items():
@@ -169,20 +169,20 @@ class YOLOv8Thread(QThread):
 
             #  判断是否更换模型
             if self.current_model_name != self.new_model_name:
-                self.send_msg.emit('Loading Model: {}'.format(os.path.basename(self.new_model_name)))
+                self.send_msg.emit('正在加载模型：{} (Loading Model)'.format(os.path.basename(self.new_model_name)))
                 self.setup_model(self.new_model_name)
                 self.current_model_name = self.new_model_name
             if self.is_continue:
                 if self.is_file:
-                    self.send_msg.emit("Detecting File: {}".format(os.path.basename(self.source)))
+                    self.send_msg.emit("正在检测文件：{} (Detecting File)".format(os.path.basename(self.source)))
                 elif self.webcam and not self.is_url:
-                    self.send_msg.emit("Detecting Webcam: Camera_{}".format(self.source))
+                    self.send_msg.emit("正在检测摄像头：Camera_{} (Detecting Webcam)".format(self.source))
                 elif self.is_folder:
-                    self.send_msg.emit("Detecting Folder: {}".format(os.path.dirname(self.source[0])))
+                    self.send_msg.emit("正在检测文件夹：{} (Detecting Folder)".format(os.path.dirname(self.source[0])))
                 elif self.is_url:
-                    self.send_msg.emit("Detecting URL: {}".format(self.source))
+                    self.send_msg.emit("正在检测URL：{} (Detecting URL)".format(self.source))
                 else:
-                    self.send_msg.emit("Detecting: {}".format(self.source))
+                    self.send_msg.emit("正在检测：{} (Detecting)".format(self.source))
                 self.batch = next(datasets)
                 path, im0s, s = self.batch
                 self.ori_img = im0s.copy()
@@ -273,22 +273,24 @@ class YOLOv8Thread(QThread):
                             else:  # 第一次出现的类别
                                 self.labels_dict[label_name] = int(nums)
 
-                    if self.webcam or self.is_url:
-                        # labels_dict 加入到 all_labels_dict
-                        for key, value in self.labels_dict.items():
-                            if key in self.all_labels_dict:
-                                self.all_labels_dict[key] += value
-                            else:
-                                self.all_labels_dict[key] = value
+                    # 累积所有帧的检测结果（摄像头、URL流、视频文件都需要累积）
+                    # labels_dict 加入到 all_labels_dict
+                    for key, value in self.labels_dict.items():
+                        if key in self.all_labels_dict:
+                            self.all_labels_dict[key] += value
+                        else:
+                            self.all_labels_dict[key] = value
+
+                    # 计算累积的类别数和目标数
+                    accumulated_class_nums = len(self.all_labels_dict)  # 累积的类别种类数
+                    accumulated_target_nums = sum(self.all_labels_dict.values())  # 累积的目标总数
 
                     self.send_output.emit(self.plotted_img)  # after detection
-                    self.send_class_num.emit(class_nums)
-                    self.send_target_num.emit(target_nums)
+                    self.send_class_num.emit(accumulated_class_nums)  # 发送累积的类别数
+                    self.send_target_num.emit(accumulated_target_nums)  # 发送累积的目标数
 
-                    if self.webcam or self.is_url:
-                        self.results_picture = self.all_labels_dict
-                    else:
-                        self.results_picture = self.labels_dict
+                    # 使用累积的结果
+                    self.results_picture = self.all_labels_dict
 
                     if self.save_res:
                         save_path = str(self.save_path / p.name)  # im.jpg
@@ -305,7 +307,7 @@ class YOLOv8Thread(QThread):
 
                 if percent == self.progress_value and not self.webcam:
                     self.go_process()
-                    self.send_msg.emit('Finish Detection')
+                    self.send_msg.emit('检测完成 (Finish Detection)')
                     # --- 发送图片和表格结果 --- #
                     self.send_result_picture.emit(self.results_picture)  # 发送图片结果
                     for key, value in self.results_picture.items():
@@ -336,6 +338,55 @@ class YOLOv8Thread(QThread):
         self.device = self.model.device  # update device
         self.half = self.model.fp16  # update half
         self.model.eval()
+
+        # 添加中文标签映射 - 坐姿检测类别
+        # 尝试从配置文件加载映射，如果失败则使用默认映射
+        chinese_names_map = {
+            'correct': '正确坐姿',
+            'forward': '前倾',
+            'backward': '后仰',
+            'left': '左倾',
+            'right': '右倾',
+            'lying': '趴桌',
+            'lean_forward': '前倾',
+            'lean_back': '后仰',
+            'lean_left': '左倾',
+            'lean_right': '右倾',
+            'lie_down': '趴桌',
+            'normal': '正确坐姿',
+            'sitting_correct': '正确坐姿',
+            'sitting_forward': '前倾',
+            'sitting_backward': '后仰',
+            'sitting_left': '左倾',
+            'sitting_right': '右倾',
+            'sitting_lying': '趴桌',
+        }
+        
+        # 尝试从配置文件加载
+        try:
+            import json
+            config_path = os.path.join(os.path.dirname(__file__), '../../config/chinese_labels.json')
+            if os.path.exists(config_path):
+                with open(config_path, 'r', encoding='utf-8') as f:
+                    config = json.load(f)
+                    chinese_names_map.update(config.get('mapping', {}))
+        except Exception as e:
+            pass  # 如果加载失败，使用默认映射
+        
+        # 将模型的英文标签替换为中文标签
+        if hasattr(self.model, 'names') and self.model.names:
+            original_names = self.model.names.copy()
+            for key, english_name in original_names.items():
+                # 转换为小写进行匹配
+                english_lower = english_name.lower().replace(' ', '_').replace('-', '_')
+                if english_lower in chinese_names_map:
+                    self.model.names[key] = chinese_names_map[english_lower]
+                # 如果直接匹配不到，尝试部分匹配
+                else:
+                    for eng_key, chinese_name in chinese_names_map.items():
+                        if eng_key in english_lower:
+                            self.model.names[key] = chinese_name
+                            break
 
         # 加入mediapipe v1.1
         self.mp_pose = mp.solutions.pose.Pose(

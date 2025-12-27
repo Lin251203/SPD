@@ -148,6 +148,20 @@ class YOLOSHOWVS(QMainWindow, YOLOSHOWBASE):
         # --- MessageBar Init --- #
         self.showStatus("Welcome to YOLOSHOW")
         # --- MessageBar Init --- #
+        
+        # --- 初始化结果文件，清空旧数据 --- #
+        result_json_path = f'{self.current_workpath}/config/result.json'
+        result_png_path = f'{self.current_workpath}/config/result.png'
+        # 清空result.json
+        with open(result_json_path, 'w', encoding='utf-8') as f:
+            json.dump({}, f, ensure_ascii=False, indent=4)
+        # 删除旧的result.png（如果存在）
+        if os.path.exists(result_png_path):
+            try:
+                os.remove(result_png_path)
+            except:
+                pass
+        # --- 初始化结果文件，清空旧数据 --- #
 
     # 初始化模型线程
     def initThreads(self):
@@ -216,7 +230,7 @@ class YOLOSHOWVS(QMainWindow, YOLOSHOWBASE):
         if not any(
                 thread.res_status for thread_name, thread in self.yolo_threads.threads_pool.items() if
                 thread_name.endswith("left")):
-            self.showStatus("Please select the Image/Video before starting detection...")
+            self.showStatus("请先选择图片/视频再开始检测 (Please select the Image/Video before starting detection)")
             return
         config_file = f'{self.current_workpath}/config/save.json'
         with open(config_file, 'r', encoding='utf-8') as f:
@@ -413,7 +427,7 @@ class YOLOSHOWVS(QMainWindow, YOLOSHOWBASE):
             self.reloadModel()
             self.runModel()
         else:
-            self.showStatus("Please select the Image/Video before starting detection...")
+            self.showStatus("请先选择图片/视频再开始检测 (Please select the Image/Video before starting detection)")
             self.ui.run_button.setChecked(False)
 
     # 停止识别

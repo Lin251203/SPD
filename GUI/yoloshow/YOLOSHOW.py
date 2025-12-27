@@ -132,8 +132,22 @@ class YOLOSHOW(QMainWindow, YOLOSHOWBASE):
         # --- Setting栏 初始化 --- #
 
         # --- MessageBar Init --- #
-        self.showStatus("Welcome to SPD")
+        self.showStatus("欢迎使用坐姿检测系统 (Welcome to SPD)")
         # --- MessageBar Init --- #
+        
+        # --- 初始化结果文件，清空旧数据 --- #
+        result_json_path = f'{self.current_workpath}/config/result.json'
+        result_png_path = f'{self.current_workpath}/config/result.png'
+        # 清空result.json
+        with open(result_json_path, 'w', encoding='utf-8') as f:
+            json.dump({}, f, ensure_ascii=False, indent=4)
+        # 删除旧的result.png（如果存在）
+        if os.path.exists(result_png_path):
+            try:
+                os.remove(result_png_path)
+            except:
+                pass
+        # --- 初始化结果文件，清空旧数据 --- #
 
         # mediapipe
         self.mpIcon = QtGui.QIcon()
@@ -158,7 +172,7 @@ class YOLOSHOW(QMainWindow, YOLOSHOWBASE):
     # 导出结果
     def saveResult(self):
         if not any(thread.res_status for thread in self.yolo_threads.threads_pool.values()):
-            self.showStatus("Please select the Image/Video before starting detection...")
+            self.showStatus("请先选择图片/视频再开始检测 (Please select the Image/Video before starting detection)")
             return
         config_file = f'{self.current_workpath}/config/save.json'
         with open(config_file, 'r', encoding='utf-8') as f:
@@ -239,7 +253,7 @@ class YOLOSHOW(QMainWindow, YOLOSHOWBASE):
             self.yolo_threads.set(model_name, MODEL_THREAD_CLASSES[model_name]())
             self.initModel(yoloname=model_name)
             self.loadConfig()
-            self.showStatus(f"Change Model to {model_name} Successfully")
+            self.showStatus(f"模型切换成功：{model_name} (Change Model to {model_name} Successfully)")
 
     def runModelProcess(self, yolo_name):
         yolo_thread = self.yolo_threads.get(yolo_name)
@@ -250,7 +264,7 @@ class YOLOSHOW(QMainWindow, YOLOSHOWBASE):
             self.yolo_threads.start_thread(yolo_name)
         else:
             yolo_thread.is_continue = False
-            self.showStatus('Pause Detection')
+            self.showStatus('暂停检测 (Pause Detection)')
 
     def runModel(self, runbuttonStatus=None):
         # self.ui.save_status_button.setEnabled(False)
@@ -260,7 +274,7 @@ class YOLOSHOW(QMainWindow, YOLOSHOWBASE):
         if current_model_name is not None:
             self.runModelProcess(current_model_name)
         else:
-            self.showStatus('The current model is not supported')
+            self.showStatus('当前模型不支持 (The current model is not supported)')
             if self.ui.run_button.isChecked():
                 self.ui.run_button.setChecked(False)
 
@@ -270,7 +284,7 @@ class YOLOSHOW(QMainWindow, YOLOSHOWBASE):
             self.changeModel()
             self.runModel()
         else:
-            self.showStatus("Please select the Image/Video before starting detection...")
+            self.showStatus("请先选择图片/视频再开始检测 (Please select the Image/Video before starting detection)")
             self.ui.run_button.setChecked(False)
 
     # 停止识别
