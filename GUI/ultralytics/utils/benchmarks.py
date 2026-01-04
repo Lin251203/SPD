@@ -166,7 +166,11 @@ def benchmark(
     name = Path(model.ckpt_path).name
     s = f"\nBenchmarks complete for {name} on {data} at imgsz={imgsz} ({time.time() - t0:.2f}s)\n{df}\n"
     LOGGER.info(s)
-    with open("benchmarks.log", "a", errors="ignore", encoding="utf-8") as f:
+    import os
+    debug_dir = "debug"
+    if not os.path.exists(debug_dir):
+        os.makedirs(debug_dir)
+    with open(os.path.join(debug_dir, "benchmarks.log"), "a", errors="ignore", encoding="utf-8") as f:
         f.write(s)
 
     if verbose and isinstance(verbose, float):

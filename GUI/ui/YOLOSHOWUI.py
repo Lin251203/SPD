@@ -293,9 +293,6 @@ class Ui_MainWindow(object):
 "	background-image: url(:/leftbox/images/newsize/folder.png);\n"
 "\n"
 "}\n"
-"QPushButton#src_camera{\n"
-"	background-image: url(:/leftbox/images/newsize/security-camera.png);\n"
-"}\n"
 "QPushButton#src_img{\n"
 "	background-image: url(:/leftbox/images/newsize/gallery.png);\n"
 "}\n"
@@ -325,9 +322,6 @@ class Ui_MainWindow(object):
 "	font: 12pt \"Times New Roman\";\n"
 "	font-weight: bold;\n"
 "	padding-left: 15px;\n"
-"}\n"
-"QFrame#cameraBox:hover{\n"
-"	background-color: rgba(114, 129, 214, 59);\n"
 "}\n"
 "QFrame#folderBox:hover{\n"
 "	background-color: rgba(114, 129, 214, 59);\n"
@@ -447,34 +441,6 @@ class Ui_MainWindow(object):
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_3.addItem(self.verticalSpacer)
-
-        self.cameraBox = QFrame(self.leftbox_bottom)
-        self.cameraBox.setObjectName(u"cameraBox")
-        self.cameraBox.setMinimumSize(QSize(180, 0))
-        self.cameraBox.setMaximumSize(QSize(180, 16777215))
-        self.cameraBox.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
-        self.cameraBox.setFrameShape(QFrame.Shape.StyledPanel)
-        self.cameraBox.setFrameShadow(QFrame.Shadow.Raised)
-        self.horizontalLayout_5 = QHBoxLayout(self.cameraBox)
-        self.horizontalLayout_5.setSpacing(0)
-        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
-        self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
-        self.src_camera = QPushButton(self.cameraBox)
-        self.src_camera.setObjectName(u"src_camera")
-        sizePolicy2.setHeightForWidth(self.src_camera.sizePolicy().hasHeightForWidth())
-        self.src_camera.setSizePolicy(sizePolicy2)
-        self.src_camera.setMinimumSize(QSize(180, 0))
-        self.src_camera.setMaximumSize(QSize(180, 16777215))
-        self.src_camera.setIconSize(QSize(30, 30))
-
-        self.horizontalLayout_5.addWidget(self.src_camera, 0, Qt.AlignmentFlag.AlignLeft)
-
-
-        self.verticalLayout_3.addWidget(self.cameraBox)
-
-        self.zSpacer3 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-
-        self.verticalLayout_3.addItem(self.zSpacer3)
 
         self.resultBox = QFrame(self.leftbox_bottom)
         self.resultBox.setObjectName(u"resultBox")
@@ -1919,7 +1885,6 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(shortcut)
         self.src_folder.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+S", None))
 #endif // QT_CONFIG(shortcut)
-        self.src_camera.setText(QCoreApplication.translate("MainWindow", u"IPcam 网络摄像头", None))
         self.src_result.setText(QCoreApplication.translate("MainWindow", u"    Result Pic 结果图片", None))
         self.src_table.setText(QCoreApplication.translate("MainWindow", u"    Result Tab 结果表格", None))
         self.src_vsmode.setText(QCoreApplication.translate("MainWindow", u"VS Mode 对比模式", None))
@@ -2077,11 +2042,6 @@ class Ui_MainWindow(object):
             u"【Folder 文件夹】\n"
             u"批量处理文件夹中的所有图片/视频\n"
             u"适合大量文件的批处理", None))
-        
-        self.src_camera.setToolTip(QCoreApplication.translate("MainWindow",
-            u"【IPcam 网络摄像头】\n"
-            u"连接网络摄像头或RTSP视频流\n"
-            u"需要输入摄像头的IP地址或RTSP地址", None))
         
         self.src_result.setToolTip(QCoreApplication.translate("MainWindow",
             u"【Result Pic 结果图片】\n"

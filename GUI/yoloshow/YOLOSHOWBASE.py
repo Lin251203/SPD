@@ -18,9 +18,9 @@ from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtWidgets import QFileDialog, QGraphicsDropShadowEffect, QFrame, QPushButton
 from PySide6.QtCore import QPropertyAnimation, QEasingCurve, QParallelAnimationGroup
 import importlib
-from ui.utils.rtspDialog import CustomMessageBox
+# from ui.utils.rtspDialog import CustomMessageBox  # 网络摄像头（RTSP）功能已删除
 from models import common, yolo, experimental
-from ui.utils.webCamera import Camera, WebcamThread
+from ui.utils.webCamera import Camera, WebcamThread  # 本地摄像头功能
 from yolocode.yolov8.YOLOv8Thread import YOLOv8Thread
 from yolocode.yolov8.YOLOv8SegThread import YOLOv8SegThread
 from yolocode.yolov8.YOLOv8PoseThread import YOLOv8PoseThread
@@ -39,7 +39,7 @@ WIDTH_LEFT_BOX_EXTENDED = 200
 WIDTH_SETTING_BAR = 290
 WIDTH_LOGO = 60
 WINDOW_SPLIT_BODY = 20
-KEYS_LEFT_BOX_MENU = ['src_menu', 'src_setting', 'src_webcam', 'src_folder', 'src_camera', 'src_vsmode', 'src_setting']
+KEYS_LEFT_BOX_MENU = ['src_menu', 'src_setting', 'src_webcam', 'src_folder', 'src_vsmode', 'src_setting']  # 已移除 src_camera
 # 模型名称和线程类映射
 MODEL_THREAD_CLASSES = {
     "yolov8": YOLOv8Thread,
@@ -329,76 +329,8 @@ class YOLOSHOWBASE:
             with open(config_file, 'w', encoding='utf-8') as f:
                 f.write(config_json)
 
-    # 选择网络摄像头 Rtsp
-    def selectRtsp(self):
-        # rtsp://rtsp-test-server.viomic.com:554/stream
-        rtspDialog = CustomMessageBox(self, mode="single")
-        self.rtspUrl = None
-        if rtspDialog.exec():
-            self.rtspUrl = rtspDialog.urlLineEdit.text()
-        if self.rtspUrl:
-            parsed_url = urlparse(self.rtspUrl)
-            if parsed_url.scheme == 'rtsp':
-                if not self.checkRtspUrl(self.rtspUrl):
-                    self.showStatus('RTSP流不可用 (Rtsp stream is not available)')
-                    return False
-                self.showStatus(f'正在加载RTSP流：{self.rtspUrl} (Loading Rtsp)')
-                self.rtspThread = WebcamThread(self.rtspUrl)
-                self.rtspThread.changePixmap.connect(lambda x: self.showImg(x, self.ui.main_leftbox, 'img'))
-                self.rtspThread.start()
-                self.inputPath = self.rtspUrl
-            elif parsed_url.scheme in ['http', 'https']:
-                if not self.checkHttpUrl(self.rtspUrl):
-                    self.showStatus('HTTP流不可用 (Http stream is not available)')
-                    return False
-                self.showStatus(f'正在加载HTTP流：{self.rtspUrl} (Loading Http)')
-                self.rtspThread = WebcamThread(self.rtspUrl)
-                self.rtspThread.changePixmap.connect(lambda x: self.showImg(x, self.ui.main_leftbox, 'img'))
-                self.rtspThread.start()
-                self.inputPath = self.rtspUrl
-            else:
-                self.showStatus('URL is not an rtsp stream')
-                return False
-
-    # 检测网络摄像头 Rtsp 是否连通
-    def checkRtspUrl(self, url, timeout=5):
-        try:
-            # 解析URL获取主机名和端口
-            from urllib.parse import urlparse
-            parsed_url = urlparse(url)
-            hostname = parsed_url.hostname
-            port = parsed_url.port or 554  # RTSP默认端口是554
-
-            # 创建socket对象
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(timeout)
-            # 尝试连接
-            sock.connect((hostname, port))
-            # 关闭socket
-            sock.close()
-            return True
-        except Exception:
-            return False
-
-    # 检测Http网络摄像头 是否连通
-    def checkHttpUrl(self, url, timeout=5):
-        try:
-            # 解析URL获取主机名和端口
-            from urllib.parse import urlparse
-            parsed_url = urlparse(url)
-            hostname = parsed_url.hostname
-            port = parsed_url.port or 80  # HTTP默认端口是80
-
-            # 创建socket对象
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(timeout)
-            # 尝试连接
-            sock.connect((hostname, port))
-            # 关闭socket
-            sock.close()
-            return True
-        except Exception as e:
-            return False
+    # 网络摄像头功能已删除
+    # 如需使用网络摄像头，请使用本地摄像头功能
 
     # 显示Label图片
     def showImg(self, img, label, flag):
@@ -573,6 +505,17 @@ class YOLOSHOWBASE:
     # 导出检测结果 --- 过程代码
     def saveResultProcess(self, outdir, current_model_name, folder):
         yolo_thread = self.yolo_threads.get(current_model_name)
+        
+        # 检查线程是否存在
+        if not yolo_thread:
+            self.showStatus('未找到模型线程 (Model thread not found)')
+            return
+        
+        # 检查是否有 res_path 属性
+        if not hasattr(yolo_thread, 'res_path') or not yolo_thread.res_path:
+            self.showStatus('请先运行检测并等待结果生成 (Please run detection first and wait for results)')
+            return
+        
         if folder:
             try:
                 output_dir = os.path.dirname(yolo_thread.res_path)
@@ -864,5 +807,56 @@ class YOLOSHOWBASE:
 
     # 展示表格结果
     def showTableResult(self):
+        # 检查是否有检测结果
+        if self.detect_result is None or len(self.detect_result) == 0:
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.warning(
+                self,
+                "无检测结果 No Results",
+                "暂无检测结果！\n\n"
+                "📹 摄像头模式说明：\n"
+                "• 摄像头检测是实时流模式\n"
+                "• 需要在检测过程中积累数据\n"
+                "• 停止检测后才能查看统计结果\n\n"
+                "✅ 正确操作流程：\n"
+                "1️⃣ 点击 'Webcam' 启动摄像头\n"
+                "2️⃣ 点击 'Run' 开始检测\n"
+                "3️⃣ 保持检测运行至少20-30秒\n"
+                "4️⃣ 确保摄像头画面中有人\n"
+                "5️⃣ 点击 'Run' 停止检测\n"
+                "6️⃣ 点击 'Result Tab' 查看结果\n\n"
+                "💡 如果仍然没有数据：\n"
+                "• 确保摄像头画面中有人\n"
+                "• 降低置信度阈值（Conf Threshold）\n"
+                "• 检测时间要足够长（至少20秒）\n"
+                "• 尝试不同的坐姿让系统检测\n\n"
+                "━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                "📹 Webcam Mode:\n"
+                "• Real-time streaming mode\n"
+                "• Data accumulates during detection\n"
+                "• View results after stopping\n\n"
+                "✅ Correct Steps:\n"
+                "1️⃣ Click 'Webcam' to start camera\n"
+                "2️⃣ Click 'Run' to start detection\n"
+                "3️⃣ Keep detection running for 20-30s\n"
+                "4️⃣ Ensure person is in camera view\n"
+                "5️⃣ Click 'Run' to stop detection\n"
+                "6️⃣ Click 'Result Tab' to view results\n\n"
+                "💡 If still no data:\n"
+                "• Ensure person is visible in camera\n"
+                "• Lower confidence threshold\n"
+                "• Run detection longer (at least 20s)\n"
+                "• Try different postures"
+            )
+            return
+        
+        # 关闭旧窗口（如果存在）
+        if hasattr(self, 'table_result') and self.table_result:
+            try:
+                self.table_result.close()
+            except:
+                pass
+        
+        # 创建并显示新窗口
         self.table_result = TableViewQWidget(infoList=self.detect_result)
         self.table_result.show()

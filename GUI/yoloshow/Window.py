@@ -15,6 +15,7 @@ class YOLOSHOWWindow(YOLOSHOW):
 
     def __init__(self):
         super(YOLOSHOWWindow, self).__init__()
+        self.animation_window = None  # 初始化animation_window属性
         self.setup_tooltips()
         self.center()
         # --- 拖动窗口 改变窗口大小 --- #
@@ -264,18 +265,6 @@ class YOLOSHOWWindow(YOLOSHOW):
             "• 支持批量保存检测结果\n\n"
             "💡 提示：适合大量文件的批处理分析")
         
-        self.ui.src_camera.setToolTip(
-            "【IPcam 网络摄像头】\n"
-            "连接网络摄像头或RTSP视频流\n\n"
-            "支持协议：\n"
-            "• RTSP 流（rtsp://...）\n"
-            "• HTTP 流（http://...）\n\n"
-            "特点：\n"
-            "• 实时检测，持续运行\n"
-            "• 可查看结果图和结果表\n"
-            "• 不支持 Save Result 功能\n\n"
-            "💡 提示：需要输入完整的流地址")
-        
         self.ui.src_result.setToolTip(
             "【Result Pic 结果图片】\n"
             "查看检测结果的统计柱状图\n\n"
@@ -469,6 +458,8 @@ class YOLOSHOWVSWindow(YOLOSHOWVS):
 
     def __init__(self):
         super(YOLOSHOWVSWindow, self).__init__()
+        self.animation_window = None  # 初始化animation_window属性
+        self.setup_tooltips_vs()  # 设置对比模式的工具提示
         self.center()
         # --- 拖动窗口 改变窗口大小 --- #
         self.left_grip = CustomGrip(self, Qt.LeftEdge, True)
@@ -477,7 +468,88 @@ class YOLOSHOWVSWindow(YOLOSHOWVS):
         self.bottom_grip = CustomGrip(self, Qt.BottomEdge, True)
         self.setAcceptDrops(True) # ==> 设置窗口支持拖动（必须设置）
         # --- 拖动窗口 改变窗口大小 --- #
-        self.animation_window = None
+    
+    def setup_tooltips_vs(self):
+        """设置对比模式的工具提示"""
+        print("[DEBUG] 开始设置对比模式工具提示")
+        
+        try:
+            # 模型选择
+            print("[DEBUG] 设置 model_box1 tooltip")
+            self.ui.model_box1.setToolTip(
+                "【模型1选择】\n"
+                "• yolov11-eq.pt - 坐姿检测专用模型（推荐）⭐\n"
+                "• yolo11n.pt - 通用目标检测模型\n"
+                "• yolo11n-pose.pt - 人体姿态检测模型\n\n"
+                "💡 建议：使用 yolov11-eq.pt 获得最佳坐姿检测效果")
+            
+            print("[DEBUG] 设置 model_box2 tooltip")
+            self.ui.model_box2.setToolTip(
+                "【模型2选择】\n"
+                "• yolov11-eq.pt - 坐姿检测专用模型（推荐）⭐\n"
+                "• yolo11n.pt - 通用目标检测模型\n"
+                "• yolo11n-pose.pt - 人体姿态检测模型\n\n"
+                "💡 建议：选择不同模型进行对比测试")
+            
+            # IOU 交并比
+            print("[DEBUG] 设置 iou_spinbox tooltip")
+            self.ui.iou_spinbox.setToolTip(
+                "【IOU 交并比阈值】\n"
+                "作用：控制重叠检测框的合并程度\n"
+                "• 默认值：0.45（推荐 0.45-0.50）\n"
+                "• 调高：保留更多重叠框\n"
+                "• 调低：合并更多重叠框")
+            
+            # Confidence 置信度
+            print("[DEBUG] 设置 conf_spinbox tooltip")
+            self.ui.conf_spinbox.setToolTip(
+                "【Confidence 置信度阈值】\n"
+                "作用：控制检测的灵敏度\n"
+                "• 默认值：0.25（推荐 0.25-0.35）\n"
+                "• 调高：减少误检但可能漏检\n"
+                "• 调低：提高检出率但可能误检")
+            
+            # Delay 延迟
+            print("[DEBUG] 设置 speed_spinbox tooltip")
+            self.ui.speed_spinbox.setToolTip(
+                "【Delay 帧间延迟】\n"
+                "作用：控制处理速度\n"
+                "• 默认值：10ms（推荐 5-10ms）\n"
+                "• 调高：降低CPU/GPU占用\n"
+                "• 调低：提高处理速度")
+            
+            # Line Width 线宽
+            print("[DEBUG] 设置 line_spinbox tooltip")
+            self.ui.line_spinbox.setToolTip(
+                "【Line Width 检测框线宽】\n"
+                "作用：调整检测框边框粗细\n"
+                "• 默认值：3（推荐 2-3）\n"
+                "• 仅影响显示效果，不影响性能")
+            
+            # 左侧菜单
+            print("[DEBUG] 设置 src_img tooltip")
+            self.ui.src_img.setToolTip(
+                "【Media 媒体】\n"
+                "选择图片或视频文件进行对比检测\n"
+                "两个模型将同时处理同一文件")
+            
+            print("[DEBUG] 设置 src_folder tooltip")
+            self.ui.src_folder.setToolTip(
+                "【Folder 文件夹】\n"
+                "批量处理文件夹中的所有文件\n"
+                "两个模型将同时处理每个文件")
+            
+            print("[DEBUG] 设置 src_singlemode tooltip")
+            self.ui.src_singlemode.setToolTip(
+                "【SG Mode 单模式】\n"
+                "切换回单模式窗口\n"
+                "使用单个模型进行检测")
+            
+            print("[DEBUG] 对比模式工具提示设置完成")
+        except Exception as e:
+            print(f"[ERROR] 设置对比模式工具提示失败: {e}")
+            import traceback
+            traceback.print_exc()
 
 
     # 鼠标拖入事件

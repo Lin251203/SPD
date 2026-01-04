@@ -1,5 +1,5 @@
 {
-  "description": "坐姿检测中文标签映射配置 - 基于 yolov11-eq.pt 模型实际类别",
+  "description": "坐姿检测中文标签映射配置 - yolov11-eq.pt 模型的6类坐姿",
   "model_info": {
     "model_name": "yolov11-eq.pt",
     "num_classes": 6,
@@ -11,25 +11,15 @@
     "body_right": "身体右倾",
     "left_support_head": "左手托腮",
     "right_support_head": "右手托腮",
-    "lying_down": "趴桌",
-
-    "correct": "正确坐姿",
-    "forward": "前倾",
-    "backward": "后仰",
-    "left": "左倾",
-    "right": "右倾",
-    "lying": "趴桌",
-    "lean_forward": "前倾",
-    "lean_back": "后仰",
-    "lean_left": "左倾",
-    "lean_right": "右倾",
-    "lie_down": "趴桌",
-    "sitting_correct": "正确坐姿",
-    "sitting_forward": "前倾",
-    "sitting_backward": "后仰",
-    "sitting_left": "左倾",
-    "sitting_right": "右倾",
-    "sitting_lying": "趴桌"
+    "lying_down": "趴桌"
   },
-  "note": "前6个是模型实际训练的类别，后面的是兼容其他可能的标签名称"
+  "class_list": [
+    "正确坐姿",
+    "身体左倾",
+    "身体右倾",
+    "左手托腮",
+    "右手托腮",
+    "趴桌"
+  ],
+  "note": "仅包含模型实际训练的6类坐姿，无其他冗余类别"
 }

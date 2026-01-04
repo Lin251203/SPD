@@ -324,7 +324,11 @@ class Results(SimpleClass):
         if boxes:
             for c in boxes.cls.unique():
                 n = (boxes.cls == c).sum()  # detections per class
-                log_string += f"{n} {self.names[int(c)]}{'s' * (n > 1)}, "
+                label_name = self.names[int(c)]
+                # 检查标签是否为中文（包含中文字符），如果是中文则不添加's'
+                is_chinese = any('\u4e00' <= char <= '\u9fff' for char in label_name)
+                plural_suffix = '' if is_chinese else ('s' * (n > 1))
+                log_string += f"{n} {label_name}{plural_suffix}, "
         return log_string
 
     def save_txt(self, txt_file, save_conf=False):

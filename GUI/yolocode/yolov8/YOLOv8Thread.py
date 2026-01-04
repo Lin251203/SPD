@@ -91,36 +91,94 @@ class YOLOv8Thread(QThread):
         callbacks.add_integration_callbacks(self)
 
     def run(self):
+        # 创建日志文件夹
+        import datetime
+        import os
+        debug_dir = "debug"
+        if not os.path.exists(debug_dir):
+            os.makedirs(debug_dir)
+        
+        # 创建日志文件
+        log_file_path = os.path.join(debug_dir, f"debug_thread_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
+        try:
+            log_file = open(log_file_path, 'w', encoding='utf-8')
+            
+            def thread_log(message):
+                """写入日志到文件和控制台"""
+                timestamp = datetime.datetime.now().strftime('%H:%M:%S.%f')[:-3]
+                log_message = f"[{timestamp}] {message}"
+                print(log_message)
+                try:
+                    log_file.write(log_message + '\n')
+                    log_file.flush()
+                except:
+                    pass
+            
+            thread_log(f"[DEBUG] ========== YOLOv8Thread.run() 开始 ==========")
+            thread_log(f"[DEBUG] model={self.model}, new_model_name={self.new_model_name}")
 
-        if not self.model:
-            self.send_msg.emit("正在加载模型：{} (Loading model)".format(os.path.basename(self.new_model_name)))
-            self.setup_model(self.new_model_name)
-            self.used_model_name = self.new_model_name
+            if not self.model:
+                thread_log(f"[DEBUG] 模型未加载，开始加载模型: {self.new_model_name}")
+                self.send_msg.emit("正在加载模型：{} (Loading model)".format(os.path.basename(self.new_model_name)))
+                thread_log(f"[DEBUG] 调用 setup_model")
+                try:
+                    self.setup_model(self.new_model_name)
+                    thread_log(f"[DEBUG] setup_model 完成")
+                except Exception as e:
+                    thread_log(f"[ERROR] setup_model 出错: {e}")
+                    import traceback
+                    error_trace = traceback.format_exc()
+                    thread_log(error_trace)
+                    # 发送错误消息到UI
+                    self.send_msg.emit(f"模型加载失败: {str(e)} (Model loading failed)")
+                    # 不要 raise，避免崩溃，直接返回
+                    return
+                self.used_model_name = self.new_model_name
+                thread_log(f"[DEBUG] 模型加载完成")
 
-        source = str(self.source)
-        # 判断输入源类型
-        if isinstance(IMG_FORMATS, str) or isinstance(IMG_FORMATS, tuple):
-            self.is_file = Path(source).suffix[1:] in (IMG_FORMATS + VID_FORMATS)
-        else:
-            self.is_file = Path(source).suffix[1:] in (IMG_FORMATS | VID_FORMATS)
-        self.is_url = source.lower().startswith(("rtsp://", "rtmp://", "http://", "https://"))
-        self.webcam = source.isnumeric() or source.endswith(".streams") or (self.is_url and not self.is_file)
-        self.screenshot = source.lower().startswith("screen")
-        # 判断输入源是否是文件夹，如果是列表，则是文件夹
-        self.is_folder = isinstance(self.source, list)
-        if self.save_res:
-            self.save_path = increment_path(Path(self.project) / self.name, exist_ok=self.exist_ok)  # increment run
-            self.save_path.mkdir(parents=True, exist_ok=True)  # make dir
+            thread_log(f"[DEBUG] 开始处理输入源: {self.source}")
+            source = str(self.source)
+            # 判断输入源类型
+            if isinstance(IMG_FORMATS, str) or isinstance(IMG_FORMATS, tuple):
+                self.is_file = Path(source).suffix[1:] in (IMG_FORMATS + VID_FORMATS)
+            else:
+                self.is_file = Path(source).suffix[1:] in (IMG_FORMATS | VID_FORMATS)
+            self.is_url = source.lower().startswith(("rtsp://", "rtmp://", "http://", "https://"))
+            self.webcam = source.isnumeric() or source.endswith(".streams") or (self.is_url and not self.is_file)
+            self.screenshot = source.lower().startswith("screen")
+            # 判断输入源是否是文件夹，如果是列表，则是文件夹
+            self.is_folder = isinstance(self.source, list)
+            if self.save_res:
+                self.save_path = increment_path(Path(self.project) / self.name, exist_ok=self.exist_ok)  # increment run
+                self.save_path.mkdir(parents=True, exist_ok=True)  # make dir
 
-        if self.is_folder:
-            for index, source in enumerate(self.source):
-                is_folder_last = True if index + 1 == len(self.source) else False
+            if self.is_folder:
+                # 文件夹检测：在开始检测整个文件夹前清空累积结果
+                self.all_labels_dict = {}
+                print(f"[DEBUG] 文件夹检测：已清空累积结果 all_labels_dict")
+                
+                for index, source in enumerate(self.source):
+                    is_folder_last = True if index + 1 == len(self.source) else False
+                    self.setup_source(source)
+                    self.detect(is_folder_last=is_folder_last)
+            else:
                 self.setup_source(source)
-                self.detect(is_folder_last=is_folder_last)
-        else:
-            self.setup_source(source)
-            self.go_process()
-            self.detect()
+                self.go_process()
+                self.detect()
+                
+            thread_log(f"[DEBUG] ========== YOLOv8Thread.run() 完成 ==========")
+        except Exception as e:
+            if 'log_file' in locals():
+                thread_log(f"[ERROR] YOLOv8Thread.run() 出错: {e}")
+                import traceback
+                thread_log(traceback.format_exc())
+            raise
+        finally:
+            if 'log_file' in locals():
+                try:
+                    log_file.close()
+                except:
+                    pass
 
     def go_process(self):
         for i in range(0, 101, 10):
@@ -136,15 +194,45 @@ class YOLOv8Thread(QThread):
         datasets = iter(self.dataset)
         count = 0
         start_time = time.time()  # used to calculate the frame rate
+        
+        # 清空累积的检测结果，避免不同模型或不同检测任务之间的结果累加
+        # 注意：文件夹检测时，不在这里清空，而是在 run() 方法中清空一次
+        if not self.is_folder:
+            self.all_labels_dict = {}
+            print(f"[DEBUG] 已清空累积结果 all_labels_dict")
         while True:
             if self.stop_dtc:
                 if self.is_folder and not is_folder_last:
                     break
+                
+                # === 调试信息 ===
+                print(f"[DEBUG] 停止检测")
+                print(f"[DEBUG] self.webcam = {self.webcam}")
+                print(f"[DEBUG] hasattr all_labels_dict = {hasattr(self, 'all_labels_dict')}")
+                print(f"[DEBUG] all_labels_dict = {getattr(self, 'all_labels_dict', 'NOT_FOUND')}")
+                print(f"[DEBUG] results_picture (before) = {self.results_picture}")
+                
                 self.send_msg.emit('停止检测 (Stop Detection)')
+                
+                # --- 摄像头模式：使用累积的结果 --- #
+                if self.webcam and hasattr(self, 'all_labels_dict') and self.all_labels_dict:
+                    self.results_picture = self.all_labels_dict.copy()
+                    print(f"[摄像头模式] 累积检测结果: {self.results_picture}")
+                else:
+                    print(f"[WARNING] 未使用累积结果！原因：")
+                    print(f"  - webcam={self.webcam}")
+                    print(f"  - has all_labels_dict={hasattr(self, 'all_labels_dict')}")
+                    print(f"  - all_labels_dict empty={not self.all_labels_dict if hasattr(self, 'all_labels_dict') else 'N/A'}")
+                
+                print(f"[DEBUG] results_picture (after) = {self.results_picture}")
+                
                 # --- 发送图片和表格结果 --- #
                 self.send_result_picture.emit(self.results_picture)  # 发送图片结果
                 for key, value in self.results_picture.items():
                     self.results_table.append([key, str(value)])
+                
+                print(f"[DEBUG] results_table = {self.results_table}")
+                
                 self.results_picture = dict()
                 self.send_result_table.emit(self.results_table)  # 发送表格结果
                 self.results_table = list()
@@ -257,7 +345,10 @@ class YOLOv8Thread(QThread):
                     if 'no detections' in label_str:
                         pass
                     else:
+                        print(f"[DEBUG] ========== 解析检测结果 ==========")
+                        print(f"[DEBUG] label_str: {label_str}")
                         for each_target in label_str.split(',')[:-1]:
+                            print(f"[DEBUG] 处理目标: {each_target}")
                             num_labelname = list(each_target.split(' '))
                             nums = 0
                             label_name = ""
@@ -268,10 +359,13 @@ class YOLOv8Thread(QThread):
                                     label_name += num_labelname[each] + " "
                             target_nums += int(nums)
                             class_nums += 1
+                            print(f"[DEBUG] 解析结果: label_name='{label_name}', nums={nums}")
                             if label_name in self.labels_dict:
                                 self.labels_dict[label_name] += int(nums)
                             else:  # 第一次出现的类别
                                 self.labels_dict[label_name] = int(nums)
+                        print(f"[DEBUG] labels_dict: {self.labels_dict}")
+                        print(f"[DEBUG] ======================================")
 
                     # 累积所有帧的检测结果（摄像头、URL流、视频文件都需要累积）
                     # labels_dict 加入到 all_labels_dict
@@ -302,10 +396,14 @@ class YOLOv8Thread(QThread):
                 if self.is_folder and not is_folder_last:
                     # 判断当前是否为视频
                     if self.file_path and self.file_path.suffix[1:] in VID_FORMATS and percent != self.progress_value:
+                        print(f"[DEBUG] 文件夹检测：视频未完成，继续")
                         continue
+                    print(f"[DEBUG] 文件夹检测：当前文件检测完成，退出循环（不是最后一个文件）")
                     break
 
                 if percent == self.progress_value and not self.webcam:
+                    print(f"[DEBUG] 检测完成，准备发送结果")
+                    print(f"[DEBUG] results_picture: {self.results_picture}")
                     self.go_process()
                     self.send_msg.emit('检测完成 (Finish Detection)')
                     # --- 发送图片和表格结果 --- #
@@ -321,6 +419,7 @@ class YOLOv8Thread(QThread):
                         self.vid_cap.release()
                     if isinstance(self.vid_writer[-1], cv2.VideoWriter):
                         self.vid_writer[-1].release()  # release final video writer
+                    print(f"[DEBUG] 结果已发送")
                     break
 
     def setup_model(self, model, verbose=True):
@@ -339,30 +438,20 @@ class YOLOv8Thread(QThread):
         self.half = self.model.fp16  # update half
         self.model.eval()
 
-        # 添加中文标签映射 - 坐姿检测类别
+        # 添加中文标签映射 - 支持坐姿检测和COCO数据集
         # 尝试从配置文件加载映射，如果失败则使用默认映射
+        
+        # 坐姿检测类别的默认映射（仅6类实际存在的坐姿）
         chinese_names_map = {
-            'correct': '正确坐姿',
-            'forward': '前倾',
-            'backward': '后仰',
-            'left': '左倾',
-            'right': '右倾',
-            'lying': '趴桌',
-            'lean_forward': '前倾',
-            'lean_back': '后仰',
-            'lean_left': '左倾',
-            'lean_right': '右倾',
-            'lie_down': '趴桌',
             'normal': '正确坐姿',
-            'sitting_correct': '正确坐姿',
-            'sitting_forward': '前倾',
-            'sitting_backward': '后仰',
-            'sitting_left': '左倾',
-            'sitting_right': '右倾',
-            'sitting_lying': '趴桌',
+            'body_left': '身体左倾',
+            'body_right': '身体右倾',
+            'left_support_head': '左手托腮',
+            'right_support_head': '右手托腮',
+            'lying_down': '趴桌',
         }
         
-        # 尝试从配置文件加载
+        # 尝试从配置文件加载坐姿检测标签
         try:
             import json
             config_path = os.path.join(os.path.dirname(__file__), '../../config/chinese_labels.json')
@@ -373,20 +462,79 @@ class YOLOv8Thread(QThread):
         except Exception as e:
             pass  # 如果加载失败，使用默认映射
         
+        # 尝试从配置文件加载COCO数据集标签
+        try:
+            import json
+            coco_config_path = os.path.join(os.path.dirname(__file__), '../../config/coco_chinese_labels.json')
+            if os.path.exists(coco_config_path):
+                with open(coco_config_path, 'r', encoding='utf-8') as f:
+                    coco_config = json.load(f)
+                    chinese_names_map.update(coco_config.get('mapping', {}))
+                    print(f"[DEBUG] 已加载COCO中文标签映射，共{len(coco_config.get('mapping', {}))}个类别")
+        except Exception as e:
+            print(f"[DEBUG] 加载COCO中文标签失败: {e}")
+        
         # 将模型的英文标签替换为中文标签
         if hasattr(self.model, 'names') and self.model.names:
             original_names = self.model.names.copy()
+            replaced_count = 0
+            
+            print(f"[DEBUG] ========== 开始标签映射 ==========")
+            print(f"[DEBUG] 原始标签数量: {len(original_names)}")
+            print(f"[DEBUG] 映射表大小: {len(chinese_names_map)}")
+            
             for key, english_name in original_names.items():
-                # 转换为小写进行匹配
-                english_lower = english_name.lower().replace(' ', '_').replace('-', '_')
-                if english_lower in chinese_names_map:
-                    self.model.names[key] = chinese_names_map[english_lower]
-                # 如果直接匹配不到，尝试部分匹配
-                else:
-                    for eng_key, chinese_name in chinese_names_map.items():
-                        if eng_key in english_lower:
-                            self.model.names[key] = chinese_name
-                            break
+                matched = False
+                
+                # 首先尝试直接匹配（保留空格和大小写）
+                if english_name in chinese_names_map:
+                    self.model.names[key] = chinese_names_map[english_name]
+                    replaced_count += 1
+                    print(f"[DEBUG] 直接匹配: {english_name} -> {chinese_names_map[english_name]}")
+                    matched = True
+                    continue
+                
+                # 转换为小写并标准化（去除空格、连字符等）
+                english_lower = english_name.lower().strip()
+                english_normalized = english_lower.replace(' ', '_').replace('-', '_')
+                
+                # 尝试标准化后的匹配
+                for eng_key, chinese_name in chinese_names_map.items():
+                    eng_key_normalized = eng_key.lower().strip().replace(' ', '_').replace('-', '_')
+                    
+                    # 完全匹配（标准化后）
+                    if english_normalized == eng_key_normalized:
+                        self.model.names[key] = chinese_name
+                        replaced_count += 1
+                        print(f"[DEBUG] 标准化匹配: {english_name} -> {chinese_name}")
+                        matched = True
+                        break
+                    
+                    # 处理复数形式（英文标签可能是复数，如 kites）
+                    if english_normalized.endswith('s') and english_normalized[:-1] == eng_key_normalized:
+                        self.model.names[key] = chinese_name
+                        replaced_count += 1
+                        print(f"[DEBUG] 复数匹配: {english_name} -> {chinese_name}")
+                        matched = True
+                        break
+                    
+                    # 反向：配置中的是复数，标签是单数
+                    if eng_key_normalized.endswith('s') and eng_key_normalized[:-1] == english_normalized:
+                        self.model.names[key] = chinese_name
+                        replaced_count += 1
+                        print(f"[DEBUG] 反向复数匹配: {english_name} -> {chinese_name}")
+                        matched = True
+                        break
+                
+                # 如果没有匹配到，保持原英文名称（不添加任何后缀）
+                if not matched:
+                    print(f"[DEBUG] 未找到匹配: {english_name} (保持原名)")
+            
+            print(f"[DEBUG] 标签替换完成: {replaced_count}/{len(original_names)} 个类别已转换为中文")
+            print(f"[DEBUG] ========== 替换后的完整标签列表 ==========")
+            for key, name in self.model.names.items():
+                print(f"[DEBUG]   {key}: {name}")
+            print(f"[DEBUG] ==========================================")
 
         # 加入mediapipe v1.1
         self.mp_pose = mp.solutions.pose.Pose(
@@ -490,7 +638,21 @@ class YOLOv8Thread(QThread):
         suffix, fourcc = (".mp4", "avc1") if MACOS else (".avi", "WMV2") if WINDOWS else (".avi", "MJPG")
         # Save imgs
         if self.dataset.mode == "image":
-            cv2.imwrite(save_path, im0)
+            # 使用 cv2.imencode 处理中文路径
+            try:
+                # 编码图片
+                success, encoded_img = cv2.imencode('.jpg', im0)
+                if success:
+                    # 写入文件（支持中文路径）
+                    with open(save_path, 'wb') as f:
+                        f.write(encoded_img.tobytes())
+                    print(f"[DEBUG] 图片保存成功: {save_path}")
+                else:
+                    print(f"[ERROR] 图片编码失败: {save_path}")
+            except Exception as e:
+                print(f"[ERROR] 保存图片时出错: {e}")
+                # 如果失败，尝试使用原始方法
+                cv2.imwrite(save_path, im0)
             return save_path
 
         else:  # 'video' or 'stream'

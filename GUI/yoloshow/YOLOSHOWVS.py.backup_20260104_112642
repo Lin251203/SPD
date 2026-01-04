@@ -24,14 +24,9 @@ class YOLOSHOWVS(QMainWindow, YOLOSHOWBASE):
     def __init__(self):
         super().__init__()
         
-        # 创建日志文件夹
-        import datetime
-        debug_dir = "debug"
-        if not os.path.exists(debug_dir):
-            os.makedirs(debug_dir)
-        
         # 创建日志文件
-        log_file = os.path.join(debug_dir, f"debug_vs_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
+        import datetime
+        log_file = f"debug_vs_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
         self.log_file = open(log_file, 'w', encoding='utf-8')
         self.log(f"========== 对比模式初始化开始 ==========")
         self.log(f"日志文件: {log_file}")
@@ -1062,16 +1057,8 @@ class YOLOSHOWVS(QMainWindow, YOLOSHOWBASE):
             self.log(f"[DEBUG] 获取到线程: {yolo_thread}")
             
             if not yolo_thread:
-                self.log(f"[WARNING] 未找到线程: {yolo_name}，尝试重新创建")
-                # 尝试重新创建线程
-                if yolo_name in MODEL_THREAD_CLASSES:
-                    self.yolo_threads.set(yolo_name, MODEL_THREAD_CLASSES[yolo_name]())
-                    self.initModel(yoloname=yolo_name)
-                    yolo_thread = self.yolo_threads.get(yolo_name)
-                    self.log(f"[INFO] 线程重新创建成功: {yolo_thread}")
-                else:
-                    self.log(f"[ERROR] 无法创建线程，未知的模型类型: {yolo_name}")
-                    return
+                self.log(f"[ERROR] 未找到线程: {yolo_name}")
+                return
             
             yolo_thread.source = self.inputPath
             self.log(f"[DEBUG] 设置输入源: {self.inputPath}")
@@ -1086,11 +1073,9 @@ class YOLOSHOWVS(QMainWindow, YOLOSHOWBASE):
                 self.yolo_threads.start_thread(yolo_name)
                 self.log(f"[DEBUG] 线程已启动")
                 
-                # 延迟启动右侧模型，避免两个线程同时加载模型导致冲突
-                self.log("[DEBUG] 延迟启动右侧模型（500ms后）")
-                from PySide6.QtCore import QTimer
-                QTimer.singleShot(500, lambda: self.runRightModel(mode="start"))
-                self.log("[DEBUG] 右侧模型已设置延迟启动")
+                self.log("[DEBUG] 启动右侧模型")
+                self.runRightModel(mode="start")
+                self.log("[DEBUG] 右侧模型已启动")
             else:
                 self.log("[DEBUG] 暂停检测")
                 yolo_thread.is_continue = False

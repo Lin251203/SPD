@@ -23,33 +23,15 @@ KEYS_LEFT_BOX_MENU = ['src_webcam', 'src_folder', 'src_vsmode']  # 已移除 src
 class YOLOSHOW(QMainWindow, YOLOSHOWBASE):
     def __init__(self):
         super().__init__()
-        
-        # 创建日志文件夹
-        import datetime
-        debug_dir = "debug"
-        if not os.path.exists(debug_dir):
-            os.makedirs(debug_dir)
-        
-        # 创建日志文件
-        log_file = os.path.join(debug_dir, f"debug_single_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
-        self.log_file = open(log_file, 'w', encoding='utf-8')
-        self.log(f"========== 单模式初始化开始 ==========")
-        self.log(f"日志文件: {log_file}")
-        
         self.current_model = None
         self.current_workpath = os.getcwd()
-        self.log(f"工作目录: {self.current_workpath}")
-        
         self.inputPath = None
         self.result_statistic = None
         self.detect_result = None
-        self.log("基本变量初始化完成")
 
         # --- 加载UI --- #
-        self.log("开始加载UI")
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.log("UI加载完成")
         
         self.setAttribute(Qt.WA_TranslucentBackground, True)  # 透明背景
         self.setWindowFlags(Qt.FramelessWindowHint)  # 无头窗口

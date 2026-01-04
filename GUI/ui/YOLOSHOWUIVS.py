@@ -290,9 +290,6 @@ class Ui_MainWindow(object):
 "	background-image: url(:/leftbox/images/newsize/folder.png);\n"
 "\n"
 "}\n"
-"QPushButton#src_camera{\n"
-"	background-image: url(:/leftbox/images/newsize/security-camera.png);\n"
-"}\n"
 "QPushButton#src_img{\n"
 "	background-image: url(:/leftbox/images/newsize/gallery.png);\n"
 "}\n"
@@ -322,9 +319,6 @@ class Ui_MainWindow(object):
 "	font: 12pt \"Times New Roman\";\n"
 "	font-weight: bold;\n"
 "	padding-left: 15px;\n"
-"}\n"
-"QFrame#cameraBox:hover{\n"
-"	background-color: rgba(114, 129, 214, 59);\n"
 "}\n"
 "QFrame#folderBox:hover{\n"
 "	background-color: rgba(114, 129, 214, 59);\n"
@@ -446,34 +440,6 @@ class Ui_MainWindow(object):
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_3.addItem(self.verticalSpacer)
-
-        self.cameraBox = QFrame(self.leftbox_bottom)
-        self.cameraBox.setObjectName(u"cameraBox")
-        self.cameraBox.setMinimumSize(QSize(180, 0))
-        self.cameraBox.setMaximumSize(QSize(180, 16777215))
-        self.cameraBox.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
-        self.cameraBox.setFrameShape(QFrame.Shape.StyledPanel)
-        self.cameraBox.setFrameShadow(QFrame.Shadow.Raised)
-        self.horizontalLayout_5 = QHBoxLayout(self.cameraBox)
-        self.horizontalLayout_5.setSpacing(0)
-        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
-        self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
-        self.src_camera = QPushButton(self.cameraBox)
-        self.src_camera.setObjectName(u"src_camera")
-        sizePolicy2.setHeightForWidth(self.src_camera.sizePolicy().hasHeightForWidth())
-        self.src_camera.setSizePolicy(sizePolicy2)
-        self.src_camera.setMinimumSize(QSize(180, 0))
-        self.src_camera.setMaximumSize(QSize(180, 16777215))
-        self.src_camera.setIconSize(QSize(30, 30))
-
-        self.horizontalLayout_5.addWidget(self.src_camera, 0, Qt.AlignmentFlag.AlignLeft)
-
-
-        self.verticalLayout_3.addWidget(self.cameraBox)
-
-        self.verticalSpacer_6 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-
-        self.verticalLayout_3.addItem(self.verticalSpacer_6)
 
         self.singleBox = QFrame(self.leftbox_bottom)
         self.singleBox.setObjectName(u"singleBox")
@@ -2251,51 +2217,6 @@ class Ui_MainWindow(object):
         self.verticalLayout_17.setSpacing(9)
         self.verticalLayout_17.setObjectName(u"verticalLayout_17")
         self.verticalLayout_17.setContentsMargins(0, 0, 0, 0)
-        self.import_button = QPushButton(self.frame_4)
-        self.import_button.setObjectName(u"import_button")
-        sizePolicy2.setHeightForWidth(self.import_button.sizePolicy().hasHeightForWidth())
-        self.import_button.setSizePolicy(sizePolicy2)
-        self.import_button.setStyleSheet(u"QPushButton{\n"
-"	background-image:url(:/setting /images/newsize/import.png);\n"
-"	background-repeat: no-repeat;\n"
-"	background-position: left center;\n"
-"	border: none;	\n"
-"	border-left: 10px solid transparent;\n"
-"	text-align: left;\n"
-"	padding-left: 40px;\n"
-"	padding-bottom: 4px;\n"
-"	color: white;\n"
-"	font: 700 13pt \"Nirmala UI\";\n"
-"}\n"
-"QPushButton:hover{\n"
-"	background-color: rgba(114, 129, 214, 59);\n"
-"}")
-
-        self.verticalLayout_17.addWidget(self.import_button)
-
-        self.save_status_button = QCheckBox(self.frame_4)
-        self.save_status_button.setObjectName(u"save_status_button")
-        self.save_status_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        self.save_status_button.setStyleSheet(u"QCheckBox {\n"
-"color: white;\n"
-"font: 700 13pt \"Nirmala UI\";\n"
-"        }\n"
-"QCheckBox::indicator {\n"
-"           padding-top: 1px;\n"
-"            width: 40px;\n"
-"            height: 30px;\n"
-"            border: none;\n"
-" }\n"
-"\n"
-"QCheckBox::indicator:unchecked {\n"
-"            image: url(:/setting /images/newsize/check_no.png);\n"
-"        }\n"
-"\n"
-"QCheckBox::indicator:checked {\n"
-"            image:url(:/setting /images/newsize/check_yes.png);\n"
-"        }")
-
-        self.verticalLayout_17.addWidget(self.save_status_button)
 
         self.save_button = QPushButton(self.frame_4)
         self.save_button.setObjectName(u"save_button")
@@ -2371,7 +2292,6 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(shortcut)
         self.src_folder.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+S", None))
 #endif // QT_CONFIG(shortcut)
-        self.src_camera.setText(QCoreApplication.translate("MainWindow", u"IPcam  ", None))
         self.src_singlemode.setText(QCoreApplication.translate("MainWindow", u"  SG Mode", None))
 #if QT_CONFIG(shortcut)
         self.src_singlemode.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+S", None))
@@ -2407,8 +2327,6 @@ class Ui_MainWindow(object):
         self.ToggleBotton_3.setText(QCoreApplication.translate("MainWindow", u"Confidence", None))
         self.ToggleBotton_4.setText(QCoreApplication.translate("MainWindow", u"Delay(ms)", None))
         self.ToggleBotton_5.setText(QCoreApplication.translate("MainWindow", u"Line Width", None))
-        self.import_button.setText(QCoreApplication.translate("MainWindow", u"Import Model", None))
-        self.save_status_button.setText(QCoreApplication.translate("MainWindow", u"Save Mode", None))
         self.save_button.setText(QCoreApplication.translate("MainWindow", u"Save Result", None))
     # retranslateUi
 

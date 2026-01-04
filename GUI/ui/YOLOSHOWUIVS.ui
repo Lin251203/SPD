@@ -4741,36 +4741,6 @@ QPushButton:hover{
                        </widget>
                       </item>
                       <item>
-                       <widget class="QCheckBox" name="save_status_button">
-                        <property name="cursor">
-                         <cursorShape>PointingHandCursor</cursorShape>
-                        </property>
-                        <property name="styleSheet">
-                         <string notr="true">QCheckBox {
-color: white;
-font: 700 13pt &quot;Nirmala UI&quot;;
-        }
-QCheckBox::indicator {
-           padding-top: 1px;
-            width: 40px;
-            height: 30px;
-            border: none;
- }
-
-QCheckBox::indicator:unchecked {
-            image: url(:/setting /images/newsize/check_no.png);
-        }
-
-QCheckBox::indicator:checked {
-            image:url(:/setting /images/newsize/check_yes.png);
-        }</string>
-                        </property>
-                        <property name="text">
-                         <string>Save Mode</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
                        <widget class="QPushButton" name="save_button">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
